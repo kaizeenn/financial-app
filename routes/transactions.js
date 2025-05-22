@@ -159,10 +159,10 @@ router.post('/', async (req, res) => {
     }
 
     // Parse amount dari format Indonesia (1.234.567) ke number
-    const amount = parseInt(rawAmount.replace(/\./g, ''));
+    const amount = parseFloat(rawAmount.replace(/\./g, '').replace(/,/g, '.'));
     if (isNaN(amount)) {
       throw new Error('Format jumlah tidak valid');
-    }
+    } // <-- tambahkan penutup kurung kurawal di sini
 
     // Insert transaksi sesuai jenisnya
     if (type === 'income') {
@@ -291,5 +291,15 @@ router.delete('/:type/:id', async (req, res) => {
     connection.release();
   }
 });
+
+const expenseCategories = [
+  { id: 6, name: 'Makanan & Minuman' },
+  { id: 7, name: 'Transportasi' },
+  { id: 8, name: 'Belanja' },
+  { id: 9, name: 'Tagihan' },
+  { id: 10, name: 'Hiburan' },
+  { id: 11, name: 'Kesehatan' },
+  { id: 12, name: 'Pendidikan' }
+];
 
 module.exports = router;

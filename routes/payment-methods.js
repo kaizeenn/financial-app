@@ -11,8 +11,7 @@ router.get('/', async (req, res) => {
 
     const userId = req.session.user_id;
     const [methods] = await db.query(
-      'SELECT * FROM payment_methods WHERE user_id = ? ORDER BY method_name',
-      [userId]
+      'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
     res.render('payment-methods/index', {
@@ -46,8 +45,8 @@ router.post('/', async (req, res) => {
 
     // Check for duplicate
     const [existing] = await db.query(
-      'SELECT * FROM payment_methods WHERE user_id = ? AND method_name = ?',
-      [userId, method_name]
+      'SELECT * FROM payment_methods WHERE method_name = ?',
+      [method_name]
     );
 
     if (existing.length > 0) {
@@ -56,14 +55,13 @@ router.post('/', async (req, res) => {
 
     // Add new payment method
     await db.query(
-      'INSERT INTO payment_methods (user_id, method_name, details) VALUES (?, ?, ?)',
-      [userId, method_name, details]
+      'INSERT INTO payment_methods (method_name, details) VALUES (?, ?)',
+      [method_name, details]
     );
 
     // Get updated list
     const [methods] = await db.query(
-      'SELECT * FROM payment_methods WHERE user_id = ? ORDER BY method_name',
-      [userId]
+      'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
     res.render('payment-methods/index', {
@@ -75,8 +73,7 @@ router.post('/', async (req, res) => {
     console.error('Add payment method error:', error);
     
     const [methods] = await db.query(
-      'SELECT * FROM payment_methods WHERE user_id = ? ORDER BY method_name',
-      [req.session.user_id]
+      'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
     res.status(400).render('payment-methods/index', {
@@ -98,8 +95,8 @@ router.delete('/:id', async (req, res) => {
     const methodId = req.params.id;
 
     await db.query(
-      'DELETE FROM payment_methods WHERE id = ? AND user_id = ?',
-      [methodId, userId]
+      'DELETE FROM payment_methods WHERE id = ?',
+      [methodId]
     );
 
     res.json({ success: true });
