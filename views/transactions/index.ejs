@@ -55,25 +55,8 @@
               <td>
                 <span class="badge <%= transaction.type === 'income' ? 'bg-success' : 'bg-danger' %>">
                   <% 
-                    let categoryName;
-                    const catId = parseInt(transaction.category_id);
-                    switch(catId) {
-                      // Kategori Pemasukan
-                      case 1: categoryName = 'Gaji'; break;
-                      case 2: categoryName = 'Bonus'; break;
-                      case 3: categoryName = 'Investasi'; break;
-                      case 4: categoryName = 'Penjualan'; break;
-                      case 5: categoryName = 'Hadiah'; break;
-                      // Kategori Pengeluaran
-                      case 6: categoryName = 'Makanan & Minuman'; break;
-                      case 7: categoryName = 'Transportasi'; break;
-                      case 8: categoryName = 'Belanja'; break;
-                      case 9: categoryName = 'Tagihan'; break;
-                      case 10: categoryName = 'Hiburan'; break;
-                      case 11: categoryName = 'Kesehatan'; break;
-                      case 12: categoryName = 'Pendidikan'; break;
-                      default: categoryName = transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-                    }
+                    const category = categories.find(c => c.id === transaction.category_id);
+                    const categoryName = category ? category.name : (transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran');
                   %>
                   <%= categoryName %>
                 </span>
@@ -81,24 +64,7 @@
               <td><%= transaction.description || '-' %></td>
               <td><%= transaction.account_name || '-' %></td>
               <td>
-                <% 
-                  let methodName;
-                  const methodId = transaction.payment_method_id;
-                  if (methodId && methodId !== '-') {
-                  switch(methodId) {
-                      case 'cash': methodName = 'Tunai'; break;
-                      case 'transfer': methodName = 'Transfer Bank'; break;
-                      case 'debit': methodName = 'Kartu Debit'; break;
-                      case 'credit': methodName = 'Kartu Kredit'; break;
-                      case 'ewallet': methodName = 'E-Wallet'; break;
-                      case 'qris': methodName = 'QRIS'; break;
-                      default: methodName = '-';
-                    }
-                %>
-                  <span class="badge bg-info"><%= methodName %></span>
-                <% } else { %>
-                  -
-                <% } %>
+                <span class="badge bg-info"><%= transaction.payment_method || '-' %></span>
               </td>
               <td class="<%= transaction.type === 'income' ? 'text-success' : 'text-danger' %>">
                 <%= transaction.type === 'income' ? '+' : '-' %> Rp <%= transaction.amount %>
@@ -150,20 +116,14 @@
             <label for="category_id" class="form-label">Kategori</label>
             <select class="form-select" id="category_id" name="category_id" required>
               <option value="">Pilih Kategori</option>
-              <!-- Kategori Pemasukan -->
-              <option value="1" data-type="income" class="income-category">Gaji</option>
-              <option value="2" data-type="income" class="income-category">Bonus</option>
-              <option value="3" data-type="income" class="income-category">Investasi</option>
-              <option value="4" data-type="income" class="income-category">Penjualan</option>
-              <option value="5" data-type="income" class="income-category">Hadiah</option>
-              <!-- Kategori Pengeluaran -->
-              <option value="6" data-type="expense" class="expense-category" style="display: none">Makanan & Minuman</option>
-              <option value="7" data-type="expense" class="expense-category" style="display: none">Transportasi</option>
-              <option value="8" data-type="expense" class="expense-category" style="display: none">Belanja</option>
-              <option value="9" data-type="expense" class="expense-category" style="display: none">Tagihan</option>
-              <option value="10" data-type="expense" class="expense-category" style="display: none">Hiburan</option>
-              <option value="11" data-type="expense" class="expense-category" style="display: none">Kesehatan</option>
-              <option value="12" data-type="expense" class="expense-category" style="display: none">Pendidikan</option>
+              <% categories.forEach(category => { %>
+                <option value="<%= category.id %>" 
+                        data-type="<%= category.type %>" 
+                        class="<%= category.type %>-category" 
+                        style="display: none">
+                  <%= category.name %>
+                </option>
+              <% }) %>
             </select>
           </div>
 
@@ -201,12 +161,9 @@
             <label for="payment_method_id" class="form-label">Metode Pembayaran</label>
             <select class="form-select" id="payment_method_id" name="payment_method_id">
               <option value="">Pilih Metode Pembayaran (Opsional)</option>
-              <option value="cash">Tunai</option>
-              <option value="transfer">Transfer Bank</option>
-              <option value="debit">Kartu Debit</option>
-              <option value="credit">Kartu Kredit</option>
-              <option value="ewallet">E-Wallet</option>
-              <option value="qris">QRIS</option>
+              <% paymentMethods.forEach(method => { %>
+                <option value="<%= method.id %>"><%= method.method_name %></option>
+              <% }) %>
             </select>
           </div>
 

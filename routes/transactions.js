@@ -18,10 +18,20 @@ router.get('/', async (req, res) => {
     const username = req.session.username;
     const type = req.query.type || 'all'; // Filter: all, income, expense
     
-    // Ambil daftar akun untuk form tambah transaksi
+    // Ambil daftar akun, kategori, dan metode pembayaran untuk form tambah transaksi
     const [accounts] = await db.query(
       "SELECT id, name, balance FROM accounts WHERE user_id = ? ORDER BY name",
       [userId]
+    );
+
+    // Ambil kategori
+    const [categories] = await db.query(
+      "SELECT id, name, type FROM categories ORDER BY type, name"
+    );
+
+    // Ambil metode pembayaran
+    const [paymentMethods] = await db.query(
+      "SELECT id, method_name FROM payment_methods ORDER BY method_name"
     );
 
     let transactions = [];
@@ -86,14 +96,19 @@ router.get('/', async (req, res) => {
         .sort((a, b) => new Date(b.entry_date) - new Date(a.entry_date));
     }
 
+    // Join dengan payment_methods untuk mendapatkan nama metode pembayaran
+    const transactionsWithMethods = transactions.map(t => ({
+      ...t,
+      amount: formatCurrency(t.amount),
+      payment_method: paymentMethods.find(pm => pm.id === t.payment_method_id)?.method_name || '-'
+    }));
+
     res.render('transactions/index', {
       username,
-      transactions: transactions.map(t => ({
-        ...t,
-        amount: formatCurrency(t.amount),
-        payment_method_id: t.payment_method_id ? t.payment_method_id : null
-      })),
+      transactions: transactionsWithMethods,
       accounts,
+      categories,
+      paymentMethods,
       type,
       error: null
     });
@@ -154,9 +169,9 @@ router.post('/', async (req, res) => {
       await connection.query(
         `INSERT INTO income (
           user_id, account_id, payment_method_id,
-          amount, description, entry_date
-        ) VALUES (?, ?, ?, ?, ?, ?)`,
-        [userId, account_id || null, payment_method_id || null, amount, description || null, entry_date]
+          amount, description, entry_date, category_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [userId, account_id || null, payment_method_id || null, amount, description || null, entry_date, category_id || null]
       );
 
       // Update saldo akun jika akun dipilih

@@ -4,10 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
+var flash = require('express-flash');
 var expressLayouts = require('express-ejs-layouts');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var profileRouter = require('./routes/profile');
 var authRouter = require('./routes/auth');
 var dashboardRouter = require('./routes/dashboard');
 var transactionsRouter = require('./routes/transactions');
@@ -35,6 +37,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Auth routes (accessible without authentication)
@@ -49,6 +52,7 @@ app.use('/transactions', isAuthenticated, transactionsRouter);
 app.use('/accounts', isAuthenticated, accountsRouter);
 app.use('/categories', isAuthenticated, categoriesRouter);
 app.use('/users', isAuthenticated, usersRouter);
+app.use('/profile', isAuthenticated, profileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
