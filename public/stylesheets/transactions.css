@@ -1,0 +1,102 @@
+/* Sidebar styles */
+.sidebar {
+  min-height: 100vh;
+  background: #1e293b;
+}
+
+.sidebar a {
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  display: block;
+  transition: 0.2s;
+}
+
+.sidebar a:hover, 
+.sidebar a.active {
+  background: #2d3748;
+}
+
+/* Card styles */
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Transaction list styles */
+.transaction-income {
+  border-left: 4px solid #22c55e;
+}
+
+.transaction-expense {
+  border-left: 4px solid #ef4444;
+}
+
+.amount-income {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.amount-expense {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Form styles */
+.form-control:focus,
+.form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-outline-primary {
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+/* Table styles */
+.table > :not(caption) > * > * {
+  padding: 1rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Modal styles */
+.modal-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-footer {
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    min-height: auto;
+  }
+  
+  .table-responsive {
+    margin: 0 -1rem;
+  }
+}

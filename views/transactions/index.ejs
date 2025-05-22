@@ -1,0 +1,338 @@
+<%- contentFor('style') %>
+<link href="/stylesheets/transactions.css" rel="stylesheet" />
+
+<%- contentFor('body') %>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Transaksi</h2>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+    <i class="bi bi-plus-lg"></i> Tambah Transaksi
+  </button>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> <%= error %>
+  </div>
+<% } %>
+
+<!-- Filter Transaksi -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="btn-group" role="group">
+      <a href="/transactions" class="btn btn-outline-secondary <%= type === 'all' ? 'active' : '' %>">
+        Semua
+      </a>
+      <a href="/transactions?type=income" class="btn btn-outline-success <%= type === 'income' ? 'active' : '' %>">
+        Pemasukan
+      </a>
+      <a href="/transactions?type=expense" class="btn btn-outline-danger <%= type === 'expense' ? 'active' : '' %>">
+        Pengeluaran
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Daftar Transaksi -->
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Kategori</th>
+            <th>Deskripsi</th>
+            <th>Akun</th>
+            <th>Metode Pembayaran</th>
+            <th>Jumlah</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(transaction => { %>
+            <tr>
+              <td><%= new Date(transaction.entry_date).toLocaleDateString('id-ID') %></td>
+              <td>
+                <span class="badge <%= transaction.type === 'income' ? 'bg-success' : 'bg-danger' %>">
+                  <% 
+                    let categoryName;
+                    const catId = parseInt(transaction.category_id);
+                    switch(catId) {
+                      // Kategori Pemasukan
+                      case 1: categoryName = 'Gaji'; break;
+                      case 2: categoryName = 'Bonus'; break;
+                      case 3: categoryName = 'Investasi'; break;
+                      case 4: categoryName = 'Penjualan'; break;
+                      case 5: categoryName = 'Hadiah'; break;
+                      // Kategori Pengeluaran
+                      case 6: categoryName = 'Makanan & Minuman'; break;
+                      case 7: categoryName = 'Transportasi'; break;
+                      case 8: categoryName = 'Belanja'; break;
+                      case 9: categoryName = 'Tagihan'; break;
+                      case 10: categoryName = 'Hiburan'; break;
+                      case 11: categoryName = 'Kesehatan'; break;
+                      case 12: categoryName = 'Pendidikan'; break;
+                      default: categoryName = transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+                    }
+                  %>
+                  <%= categoryName %>
+                </span>
+              </td>
+              <td><%= transaction.description || '-' %></td>
+              <td><%= transaction.account_name || '-' %></td>
+              <td>
+                <% 
+                  let methodName;
+                  const methodId = transaction.payment_method_id;
+                  if (methodId && methodId !== '-') {
+                  switch(methodId) {
+                      case 'cash': methodName = 'Tunai'; break;
+                      case 'transfer': methodName = 'Transfer Bank'; break;
+                      case 'debit': methodName = 'Kartu Debit'; break;
+                      case 'credit': methodName = 'Kartu Kredit'; break;
+                      case 'ewallet': methodName = 'E-Wallet'; break;
+                      case 'qris': methodName = 'QRIS'; break;
+                      default: methodName = '-';
+                    }
+                %>
+                  <span class="badge bg-info"><%= methodName %></span>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td class="<%= transaction.type === 'income' ? 'text-success' : 'text-danger' %>">
+                <%= transaction.type === 'income' ? '+' : '-' %> Rp <%= transaction.amount %>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-danger" 
+                        onclick="deleteTransaction('<%= transaction.type %>', '<%= transaction.id %>')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+          <% if (transactions.length === 0) { %>
+            <tr>
+              <td colspan="7" class="text-center py-4">
+                Belum ada transaksi
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add Transaction Modal -->
+<div class="modal fade" id="addTransactionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Transaksi Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="transactionForm">
+        <div class="modal-body">
+          <!-- Jenis Transaksi -->
+          <div class="mb-3">
+            <label class="form-label">Jenis Transaksi</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="type" id="typeIncome" value="income" checked>
+              <label class="btn btn-outline-success" for="typeIncome">Pemasukan</label>
+              <input type="radio" class="btn-check" name="type" id="typeExpense" value="expense">
+              <label class="btn btn-outline-danger" for="typeExpense">Pengeluaran</label>
+            </div>
+          </div>
+
+          <!-- Kategori -->
+          <div class="mb-3">
+            <label for="category_id" class="form-label">Kategori</label>
+            <select class="form-select" id="category_id" name="category_id" required>
+              <option value="">Pilih Kategori</option>
+              <!-- Kategori Pemasukan -->
+              <option value="1" data-type="income" class="income-category">Gaji</option>
+              <option value="2" data-type="income" class="income-category">Bonus</option>
+              <option value="3" data-type="income" class="income-category">Investasi</option>
+              <option value="4" data-type="income" class="income-category">Penjualan</option>
+              <option value="5" data-type="income" class="income-category">Hadiah</option>
+              <!-- Kategori Pengeluaran -->
+              <option value="6" data-type="expense" class="expense-category" style="display: none">Makanan & Minuman</option>
+              <option value="7" data-type="expense" class="expense-category" style="display: none">Transportasi</option>
+              <option value="8" data-type="expense" class="expense-category" style="display: none">Belanja</option>
+              <option value="9" data-type="expense" class="expense-category" style="display: none">Tagihan</option>
+              <option value="10" data-type="expense" class="expense-category" style="display: none">Hiburan</option>
+              <option value="11" data-type="expense" class="expense-category" style="display: none">Kesehatan</option>
+              <option value="12" data-type="expense" class="expense-category" style="display: none">Pendidikan</option>
+            </select>
+          </div>
+
+          <!-- Jumlah -->
+          <div class="mb-3">
+            <label for="amount" class="form-label">Jumlah</label>
+            <div class="input-group">
+              <span class="input-group-text">Rp</span>
+              <input type="text" class="form-control" id="amount" name="amount" required>
+            </div>
+          </div>
+
+          <!-- Tanggal -->
+          <div class="mb-3">
+            <label for="entry_date" class="form-label">Tanggal</label>
+            <input type="date" class="form-control" id="entry_date" name="entry_date" 
+                   required value="<%= new Date().toISOString().split('T')[0] %>">
+          </div>
+
+          <!-- Akun -->
+          <div class="mb-3">
+            <label for="account_id" class="form-label">Akun</label>
+            <select class="form-select" id="account_id" name="account_id">
+              <option value="">Pilih Akun (Opsional)</option>
+              <% accounts.forEach(account => { %>
+                <option value="<%= account.id %>">
+                  <%= account.name %> (Rp <%= new Intl.NumberFormat('id-ID').format(account.balance) %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Metode Pembayaran -->
+          <div class="mb-3">
+            <label for="payment_method_id" class="form-label">Metode Pembayaran</label>
+            <select class="form-select" id="payment_method_id" name="payment_method_id">
+              <option value="">Pilih Metode Pembayaran (Opsional)</option>
+              <option value="cash">Tunai</option>
+              <option value="transfer">Transfer Bank</option>
+              <option value="debit">Kartu Debit</option>
+              <option value="credit">Kartu Kredit</option>
+              <option value="ewallet">E-Wallet</option>
+              <option value="qris">QRIS</option>
+            </select>
+          </div>
+
+          <!-- Deskripsi -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Deskripsi (Opsional)</label>
+            <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- contentFor('script') %>
+<script>
+  // Filter kategori berdasarkan jenis transaksi
+  function updateCategoryOptions(type) {
+    const categorySelect = document.getElementById('category_id');
+    categorySelect.value = ''; // Reset pilihan
+    
+    document.querySelectorAll('.income-category').forEach(option => {
+      option.style.display = type === 'income' ? '' : 'none';
+    });
+    
+    document.querySelectorAll('.expense-category').forEach(option => {
+      option.style.display = type === 'expense' ? '' : 'none';
+    });
+  }
+
+  // Event listener untuk perubahan tipe transaksi
+  document.querySelectorAll('input[name="type"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      updateCategoryOptions(this.value);
+    });
+  });
+
+  // Set tampilan kategori awal
+  window.addEventListener('load', function() {
+    const selectedType = document.querySelector('input[name="type"]:checked').value;
+    updateCategoryOptions(selectedType);
+  });
+
+  // Handle session expired
+  async function handleSessionExpired(response) {
+    if (response.status === 401) {
+      try {
+        const data = await response.json();
+        alert('Sesi telah berakhir, silakan login kembali');
+        window.location.href = data.redirect || '/auth/login';
+      } catch (error) {
+        window.location.href = '/auth/login';
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // Hapus transaksi
+  async function deleteTransaction(type, id) {
+    if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
+
+    try {
+      const response = await fetch(`/transactions/${type}/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (await handleSessionExpired(response)) return;
+
+      const data = await response.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Terjadi kesalahan saat menghapus transaksi');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Terjadi kesalahan saat menghapus transaksi');
+    }
+  }
+
+  // Format input jumlah ke format Indonesia
+  const amountInput = document.getElementById('amount');
+
+  amountInput.addEventListener('input', function(e) {
+    let value = this.value.replace(/[^0-9]/g, '');
+    if (value) {
+      value = new Intl.NumberFormat('id-ID').format(value);
+    }
+    this.value = value;
+  });
+
+  // Handle form submit
+  document.getElementById('transactionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+      // Ambil nilai jumlah dan konversi ke angka tanpa format
+      const rawAmount = amountInput.value.replace(/\./g, '');
+      const formData = new FormData(this);
+      formData.set('amount', rawAmount);
+
+      const response = await fetch('/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(formData)
+      });
+
+      if (await handleSessionExpired(response)) return;
+
+      const data = await response.json();
+      
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Terjadi kesalahan saat menyimpan transaksi');
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Terjadi kesalahan saat menyimpan transaksi');
+    }
+  });
+</script>

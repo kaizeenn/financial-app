@@ -1,0 +1,130 @@
+/* Sidebar styles */
+.sidebar {
+  min-height: 100vh;
+  background: #1e293b;
+}
+
+.sidebar a {
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  display: block;
+  transition: 0.2s;
+}
+
+.sidebar a:hover, 
+.sidebar a.active {
+  background: #2d3748;
+}
+
+/* Card styles */
+.account-card {
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.account-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Account type specific styles */
+.account-cash {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+}
+
+.account-bank {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: white;
+}
+
+.account-ewallet {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  color: white;
+}
+
+.account-credit {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  color: white;
+}
+
+.account-type {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.account-balance {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Form styles */
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.input-group-text {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+/* Button styles */
+.btn-primary {
+  background: #3b82f6;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-danger {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  padding: 0.25rem 0.5rem;
+}
+
+.btn-danger:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* Alert styles */
+.alert {
+  border: none;
+  border-radius: 8px;
+}
+
+.alert-success {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.alert-danger {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    min-height: auto;
+  }
+  
+  .col-md-4 {
+    margin-bottom: 1rem;
+  }
+}

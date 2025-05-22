@@ -1,0 +1,148 @@
+<!-- Styles -->
+<%- contentFor('style') %>
+<link href="/stylesheets/dashboard.css" rel="stylesheet" />
+
+<!-- Content -->
+<%- contentFor('body') %>
+<h2 class="mb-4">Dashboard</h2>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card balance-card">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2">Total Saldo</h6>
+        <h3 class="card-title">Rp <%= new Intl.NumberFormat('id-ID').format(totalBalance) %></h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-success text-white">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2">Total Pemasukan</h6>
+        <h3 class="card-title">Rp <%= new Intl.NumberFormat('id-ID').format(totalIncome) %></h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card bg-danger text-white">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2">Total Pengeluaran</h6>
+        <h3 class="card-title">Rp <%= new Intl.NumberFormat('id-ID').format(totalExpense) %></h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Pemasukan vs Pengeluaran</h5>
+        <canvas id="incomeExpenseChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kategori Pengeluaran</h5>
+        <canvas id="expenseCategoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<%- contentFor('script') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart Pemasukan vs Pengeluaran
+new Chart(
+  document.getElementById('incomeExpenseChart'),
+  {
+    type: 'line',
+    data: {
+      labels: JSON.parse('<%- chartLabels %>'),
+      datasets: [
+        {
+          label: 'Pemasukan',
+          data: JSON.parse('<%- incomeData %>'),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          fill: true,
+          tension: 0.1
+        },
+        {
+          label: 'Pengeluaran',
+          data: JSON.parse('<%- expenseData %>'),
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          fill: true,
+          tension: 0.1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+            }
+          }
+        }
+      }
+    }
+  }
+);
+
+// Chart Kategori Pengeluaran
+new Chart(
+  document.getElementById('expenseCategoryChart'),
+  {
+    type: 'doughnut',
+    data: {
+      labels: JSON.parse('<%- categoryLabels %>'),
+      datasets: [{
+        data: JSON.parse('<%- categoryData %>'),
+        backgroundColor: [
+          '#3b82f6', // Biru
+          '#f59e0b', // Oranye
+          '#22c55e', // Hijau
+          '#eab308', // Kuning
+          '#ef4444', // Merah
+          '#6366f1', // Ungu
+          '#14b8a6'  // Tosca
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'right',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.raw;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = Math.round((value / total) * 100);
+              return `${context.label}: Rp ${new Intl.NumberFormat('id-ID').format(value)} (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  }
+);
+</script>

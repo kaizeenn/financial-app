@@ -1,0 +1,62 @@
+.sidebar {
+  min-height: 100vh;
+  background: #1e293b;
+}
+
+.sidebar a {
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  display: block;
+  transition: 0.2s;
+}
+
+.sidebar a:hover {
+  background: #2d3748;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.balance-card {
+  background: linear-gradient(45deg, #2563eb, #3b82f6);
+  color: white;
+}
+
+.menu-section {
+  margin-bottom: 1rem;
+}
+
+.menu-header {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.menu-item {
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: 0.2s;
+}
+
+.menu-item:hover {
+  background: #2d3748;
+  color: #fff;
+}
+
+.menu-item.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.menu-item i {
+  font-size: 1.25rem;
+}
