@@ -12,6 +12,19 @@ router.get('/', async (req, res) => {
   try {
     const userId = req.session.user_id;
     const username = req.session.username;
+    const period = req.query.period || 'monthly'; // default monthly
+
+    // Determine date filter based on period
+    let dateFilterIncome = '';
+    let dateFilterExpense = '';
+    if (period === 'yearly') {
+      dateFilterIncome = `AND YEAR(entry_date) = YEAR(CURDATE())`;
+      dateFilterExpense = `AND YEAR(entry_date) = YEAR(CURDATE())`;
+    } else {
+      // monthly
+      dateFilterIncome = `AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())`;
+      dateFilterExpense = `AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())`;
+    }
 
     // Get total balance from accounts
     const [accounts] = await db.query(
@@ -19,73 +32,92 @@ router.get('/', async (req, res) => {
       [userId]
     );
 
-    // Get total income and expense for current month
+    // Get total income and expense for selected period
     const [totals] = await db.query(
       `SELECT 
         (SELECT COALESCE(SUM(amount), 0) 
          FROM income 
          WHERE user_id = ? 
-         AND MONTH(entry_date) = MONTH(CURRENT_DATE())
-         AND YEAR(entry_date) = YEAR(CURRENT_DATE())) as totalIncome,
+         ${dateFilterIncome}) as totalIncome,
         (SELECT COALESCE(SUM(amount), 0) 
          FROM expense 
          WHERE user_id = ? 
-         AND MONTH(entry_date) = MONTH(CURRENT_DATE())
-         AND YEAR(entry_date) = YEAR(CURRENT_DATE())) as totalExpense`,
+         ${dateFilterExpense}) as totalExpense`,
       [userId, userId]
     );
 
-    // Get monthly data for chart (last 6 months)
-    const [monthlyData] = await db.query(
-      `SELECT 
-        DATE_FORMAT(m.month_date, '%b %Y') as month,
-        COALESCE(i.income_total, 0) as income,
-        COALESCE(e.expense_total, 0) as expense
-       FROM (
-         SELECT LAST_DAY(CURRENT_DATE - INTERVAL n MONTH) as month_date
-         FROM (
-           SELECT 0 as n UNION SELECT 1 UNION SELECT 2 
-           UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
-         ) months
-       ) m
-       LEFT JOIN (
-         SELECT 
-           DATE_FORMAT(entry_date, '%b %Y') as month,
-           SUM(amount) as income_total
-         FROM income
-         WHERE user_id = ?
-         AND entry_date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
-         GROUP BY DATE_FORMAT(entry_date, '%b %Y')
-       ) i ON DATE_FORMAT(m.month_date, '%b %Y') = i.month
-       LEFT JOIN (
-         SELECT 
-           DATE_FORMAT(entry_date, '%b %Y') as month,
-           SUM(amount) as expense_total
-         FROM expense
-         WHERE user_id = ?
-         AND entry_date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
-         GROUP BY DATE_FORMAT(entry_date, '%b %Y')
-       ) e ON DATE_FORMAT(m.month_date, '%b %Y') = e.month
-       ORDER BY m.month_date`,
-      [userId, userId]
-    );
+    // Get data for chart based on selected period
+    let monthlyDataQuery = '';
+    let monthlyDataParams = [userId, userId];
+
+    if (period === 'yearly') {
+      monthlyDataQuery = `
+        SELECT 
+          DATE_FORMAT(entry_date, '%b %Y') as period,
+          SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+          SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+        FROM (
+          SELECT entry_date, amount, 'income' as type FROM income WHERE user_id = ?
+          UNION ALL
+          SELECT entry_date, amount, 'expense' as type FROM expense WHERE user_id = ?
+        ) t
+        WHERE YEAR(entry_date) = YEAR(CURDATE())
+        GROUP BY DATE_FORMAT(entry_date, '%b %Y')
+        ORDER BY entry_date
+      `;
+    } else {
+      // monthly
+      monthlyDataQuery = `
+        SELECT 
+          DATE_FORMAT(entry_date, '%d %b') as period,
+          SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+          SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+        FROM (
+          SELECT entry_date, amount, 'income' as type FROM income WHERE user_id = ?
+          UNION ALL
+          SELECT entry_date, amount, 'expense' as type FROM expense WHERE user_id = ?
+        ) t
+        WHERE MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())
+        GROUP BY DATE_FORMAT(entry_date, '%d %b')
+        ORDER BY entry_date
+      `;
+    }
+
+    const [monthlyData] = await db.query(monthlyDataQuery, monthlyDataParams);
 
     // Ambil semua kategori pengeluaran dari database
     const [expenseCategories] = await db.query(
       "SELECT id, name FROM categories WHERE type = 'expense' ORDER BY name"
     );
 
-    const [categoryTotals] = await db.query(
-      `SELECT 
-        category_id,
-        SUM(amount) as total
-       FROM expense 
-       WHERE user_id = ?
-         AND MONTH(entry_date) = MONTH(CURRENT_DATE())
-         AND YEAR(entry_date) = YEAR(CURRENT_DATE())
-       GROUP BY category_id`,
-      [userId]
-    );
+    let categoryTotalsQuery = '';
+    let categoryTotalsParams = [userId];
+
+    if (period === 'yearly') {
+      categoryTotalsQuery = `
+        SELECT 
+          category_id,
+          SUM(amount) as total
+        FROM expense
+        WHERE user_id = ?
+          AND YEAR(entry_date) = YEAR(CURDATE())
+        GROUP BY category_id
+      `;
+    } else {
+      // monthly
+      categoryTotalsQuery = `
+        SELECT 
+          category_id,
+          SUM(amount) as total
+        FROM expense
+        WHERE user_id = ?
+          AND MONTH(entry_date) = MONTH(CURRENT_DATE())
+          AND YEAR(entry_date) = YEAR(CURRENT_DATE())
+        GROUP BY category_id
+      `;
+    }
+
+    const [categoryTotals] = await db.query(categoryTotalsQuery, categoryTotalsParams);
 
     // Map totals to category names dari database
     const categoryData = expenseCategories.map(cat => {
@@ -99,9 +131,9 @@ router.get('/', async (req, res) => {
     // Format data for charts
     const monthlyDataReversed = [...monthlyData].reverse();
     const chartData = {
-      labels: monthlyDataReversed.map(d => d.month),
-      incomeData: monthlyDataReversed.map(d => parseInt(d.income)),
-      expenseData: monthlyDataReversed.map(d => parseInt(d.expense)),
+      labels: monthlyDataReversed.map(d => d.period),
+      incomeData: monthlyDataReversed.map(d => parseFloat(d.income)),
+      expenseData: monthlyDataReversed.map(d => parseFloat(d.expense)),
       categoryLabels: categoryData.map(c => c.name),
       categoryData: categoryData.map(c => c.total)
     };
@@ -112,6 +144,7 @@ router.get('/', async (req, res) => {
     res.render('dashboard/index', {
       title: 'Dashboard',
       username,
+      period,  // pass period to view for dropdown selection
       totalBalance: accounts[0]?.totalBalance || 0,
       totalIncome: totals[0]?.totalIncome || 0,
       totalExpense: totals[0]?.totalExpense || 0,

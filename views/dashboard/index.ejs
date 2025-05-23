@@ -6,6 +6,17 @@
 <%- contentFor('body') %>
 <h2 class="mb-4">Dashboard</h2>
 
+<!-- Period Filter Menu -->
+<div class="mb-4">
+  <form id="periodForm" method="get" action="/dashboard">
+    <label for="periodSelect">Pilih Periode:</label>
+    <select id="periodSelect" name="period" onchange="document.getElementById('periodForm').submit()">
+      <option value="monthly" <%= period === 'monthly' ? 'selected' : '' %>>Bulan</option>
+      <option value="yearly" <%= period === 'yearly' ? 'selected' : '' %>>Tahun</option>
+    </select>
+  </form>
+</div>
+
 <!-- Summary Cards -->
 <div class="row mb-4">
   <div class="col-md-4">
@@ -58,8 +69,7 @@
 <%- contentFor('script') %>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Chart Pemasukan vs Pengeluaran
-new Chart(
+const incomeExpenseChart = new Chart(
   document.getElementById('incomeExpenseChart'),
   {
     type: 'line',
@@ -105,8 +115,7 @@ new Chart(
   }
 );
 
-// Chart Kategori Pengeluaran
-new Chart(
+const expenseCategoryChart = new Chart(
   document.getElementById('expenseCategoryChart'),
   {
     type: 'doughnut',
