@@ -58,11 +58,12 @@
           <% } %>
           <small class="text-muted d-block mt-2">
             <i class="bi bi-clock"></i> 
-            Dibuat: <%= new Date(method.created_at).toLocaleDateString('id-ID', {
+            <!-- Removed display of created_at since column was removed -->
+            <!-- Dibuat: <%= new Date(method.created_at).toLocaleDateString('id-ID', {
               year: 'numeric',
               month: 'long',
               day: 'numeric'
-            }) %>
+            }) %> -->
           </small>
         </div>
       </div>

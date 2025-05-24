@@ -9,9 +9,9 @@ router.get('/', async (req, res) => {
       return res.redirect('/auth/login');
     }
 
-    // Ambil semua kategori aktif
+    // Ambil semua kategori (hapus filter is_active)
     const [categories] = await db.query(
-      'SELECT * FROM categories WHERE is_active = TRUE ORDER BY type, name'
+      'SELECT * FROM categories ORDER BY type, name'
     );
 
     res.render('categories/index', {
@@ -65,14 +65,14 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Tambah kategori baru dengan is_active default TRUE
+    // Tambah kategori baru (hapus kolom is_active)
     await db.query(
-      'INSERT INTO categories (name, type, is_active) VALUES (?, ?, TRUE)',
+      'INSERT INTO categories (name, type) VALUES (?, ?)',
       [name, type]
     );
 
     const [categories] = await db.query(
-      'SELECT * FROM categories WHERE is_active = TRUE ORDER BY type, name'
+      'SELECT * FROM categories ORDER BY type, name'
     );
     res.render('categories/index', {
       categories,
@@ -124,30 +124,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan saat menghapus kategori'
-    });
-  }
-});
-
-router.post('/:id/toggle-active', async (req, res) => {
-  try {
-    if (!req.session.user_id) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-
-    const categoryId = req.params.id;
-    const { isActive } = req.body;
-
-    await db.query(
-      'UPDATE categories SET is_active = ? WHERE id = ?',
-      [isActive, categoryId]
-    );
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Toggle category active error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Terjadi kesalahan saat mengubah status kategori'
     });
   }
 });
