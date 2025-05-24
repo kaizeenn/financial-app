@@ -7,7 +7,31 @@ function formatCurrency(amount) {
   return new Intl.NumberFormat('id-ID').format(amount);
 }
 
-// GET halaman daftar transaksi
+// Fungsi untuk membangun kondisi filter tanggal dan kategori
+function buildFilterConditions(startDate, endDate, categoryId) {
+  let conditions = [];
+  let params = [];
+
+  if (startDate) {
+    conditions.push('entry_date >= ?');
+    params.push(startDate);
+  }
+  if (endDate) {
+    conditions.push('entry_date <= ?');
+    params.push(endDate);
+  }
+  if (categoryId) {
+    conditions.push('category_id = ?');
+    params.push(categoryId);
+  }
+
+  // Gabungkan kondisi dengan AND
+  const whereClause = conditions.length > 0 ? ' AND ' + conditions.join(' AND ') : '';
+
+  return { whereClause, params };
+}
+
+// GET halaman daftar transaksi dengan filter rentang waktu dan kategori
 router.get('/', async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -17,7 +41,10 @@ router.get('/', async (req, res) => {
     const userId = req.session.user_id;
     const username = req.session.username;
     const type = req.query.type || 'all'; // Filter: all, income, expense
-    
+    const startDate = req.query.start_date || null;
+    const endDate = req.query.end_date || null;
+    const categoryId = req.query.category_id || null;
+
     // Ambil daftar akun, kategori, dan metode pembayaran untuk form tambah transaksi
     const [accounts] = await db.query(
       "SELECT id, name, balance FROM accounts WHERE user_id = ? ORDER BY name",
@@ -36,7 +63,8 @@ router.get('/', async (req, res) => {
 
     let transactions = [];
     if (type === 'income') {
-      // Ambil hanya pemasukan
+      // Ambil hanya pemasukan dengan filter
+      const { whereClause, params } = buildFilterConditions(startDate, endDate, categoryId);
       const [incomeData] = await db.query(
         `SELECT 
           i.*, 
@@ -44,14 +72,15 @@ router.get('/', async (req, res) => {
           i.payment_method_id
          FROM income i 
          LEFT JOIN accounts a ON i.account_id = a.id
-         WHERE i.user_id = ?
+         WHERE i.user_id = ? ${whereClause}
          ORDER BY i.entry_date DESC, i.created_at DESC`,
-        [userId]
+        [userId, ...params]
       );
       transactions = incomeData.map(t => ({...t, type: 'income'}));
     } 
     else if (type === 'expense') {
-      // Ambil hanya pengeluaran
+      // Ambil hanya pengeluaran dengan filter
+      const { whereClause, params } = buildFilterConditions(startDate, endDate, categoryId);
       const [expenseData] = await db.query(
         `SELECT 
           e.*, 
@@ -59,14 +88,15 @@ router.get('/', async (req, res) => {
           e.payment_method_id
          FROM expense e
          LEFT JOIN accounts a ON e.account_id = a.id
-         WHERE e.user_id = ?
+         WHERE e.user_id = ? ${whereClause}
          ORDER BY e.entry_date DESC, e.created_at DESC`,
-        [userId]
+        [userId, ...params]
       );
       transactions = expenseData.map(t => ({...t, type: 'expense'}));
     }
     else {
-      // Ambil semua transaksi (pemasukan & pengeluaran)
+      // Ambil semua transaksi (pemasukan & pengeluaran) dengan filter
+      const { whereClause, params } = buildFilterConditions(startDate, endDate, categoryId);
       const [incomeData] = await db.query(
         `SELECT 
           i.*, 
@@ -75,8 +105,8 @@ router.get('/', async (req, res) => {
           'income' as type
          FROM income i 
          LEFT JOIN accounts a ON i.account_id = a.id
-         WHERE i.user_id = ?`,
-        [userId]
+         WHERE i.user_id = ? ${whereClause}`,
+        [userId, ...params]
       );
       
       const [expenseData] = await db.query(
@@ -87,8 +117,8 @@ router.get('/', async (req, res) => {
           'expense' as type
          FROM expense e
          LEFT JOIN accounts a ON e.account_id = a.id
-         WHERE e.user_id = ?`,
-        [userId]
+         WHERE e.user_id = ? ${whereClause}`,
+        [userId, ...params]
       );
       
       // Gabung dan urutkan berdasarkan tanggal
@@ -110,6 +140,9 @@ router.get('/', async (req, res) => {
       categories,
       paymentMethods,
       type,
+      startDate,
+      endDate,
+      categoryId,
       error: null
     });
   } catch (error) {
@@ -162,7 +195,7 @@ router.post('/', async (req, res) => {
     const amount = parseFloat(rawAmount.replace(/\./g, '').replace(/,/g, '.'));
     if (isNaN(amount)) {
       throw new Error('Format jumlah tidak valid');
-    } // <-- tambahkan penutup kurung kurawal di sini
+    }
 
     // Insert transaksi sesuai jenisnya
     if (type === 'income') {

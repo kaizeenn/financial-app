@@ -18,19 +18,166 @@
 <!-- Filter Transaksi -->
 <div class="card mb-4">
   <div class="card-body">
-    <div class="btn-group" role="group">
-      <a href="/transactions" class="btn btn-outline-secondary <%= type === 'all' ? 'active' : '' %>">
-        Semua
-      </a>
-      <a href="/transactions?type=income" class="btn btn-outline-success <%= type === 'income' ? 'active' : '' %>">
-        Pemasukan
-      </a>
-      <a href="/transactions?type=expense" class="btn btn-outline-danger <%= type === 'expense' ? 'active' : '' %>">
-        Pengeluaran
-      </a>
-    </div>
+    <form id="filterForm" method="GET" action="/transactions" class="row g-3 align-items-center">
+      <div class="col-auto">
+        <label for="type" class="form-label">Tipe</label>
+        <select class="form-select" id="type" name="type" onchange="this.form.submit()">
+          <option value="all" <%= type === 'all' ? 'selected' : '' %>>Semua</option>
+          <option value="income" <%= type === 'income' ? 'selected' : '' %>>Pemasukan</option>
+          <option value="expense" <%= type === 'expense' ? 'selected' : '' %>>Pengeluaran</option>
+        </select>
+      </div>
+
+      <div class="col-auto">
+        <label for="dateRange" class="form-label">Rentang Waktu</label>
+        <select class="form-select" id="dateRange" name="dateRange" onchange="onDateRangeChange()">
+          <option value="" <%= (!startDate && !endDate) || (startDate === '' && endDate === '') ? 'selected' : '' %>>Semua</option>
+          <option value="7days" <%= (startDate && endDate && (function(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            sevenDaysAgo.setHours(0,0,0,0);
+            endDate.setHours(0,0,0,0);
+            now.setHours(0,0,0,0);
+            return startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime();
+          })(startDate, endDate)) ? 'selected' : '' %>>7 Hari Terakhir</option>
+          <option value="thisMonth" <%= (startDate && endDate && (function(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            firstDay.setHours(0,0,0,0);
+            lastDay.setHours(0,0,0,0);
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(0,0,0,0);
+            return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+          })(startDate, endDate)) ? 'selected' : '' %>>Bulan Ini</option>
+          <option value="custom" <%= (startDate && endDate && !(function(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            sevenDaysAgo.setHours(0,0,0,0);
+            endDate.setHours(0,0,0,0);
+            now.setHours(0,0,0,0);
+            if (startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime()) {
+              return true;
+            }
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            firstDay.setHours(0,0,0,0);
+            lastDay.setHours(0,0,0,0);
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(0,0,0,0);
+            return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+          })(startDate, endDate)) ? 'selected' : '' %>>Pilih Tanggal</option>
+        </select>
+      </div>
+
+      <div class="col-auto" id="customDateInputs" style="display: none;">
+        <label for="start_date" class="form-label">Dari</label>
+        <input type="date" class="form-control" id="start_date" name="start_date" value="<%= startDate || '' %>" onchange="document.getElementById('filterForm').submit()">
+      </div>
+
+      <div class="col-auto" id="customDateInputsEnd" style="display: none;">
+        <label for="end_date" class="form-label">Sampai</label>
+        <input type="date" class="form-control" id="end_date" name="end_date" value="<%= endDate || '' %>" onchange="document.getElementById('filterForm').submit()">
+      </div>
+
+      <div class="col-auto">
+        <label for="category_id" class="form-label">Kategori</label>
+        <select class="form-select" id="category_id" name="category_id" onchange="this.form.submit()">
+          <option value="">Semua Kategori</option>
+          <% categories.forEach(category => { %>
+            <option value="<%= category.id %>" <%= categoryId == category.id ? 'selected' : '' %>>
+              <%= category.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-auto align-self-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </form>
   </div>
 </div>
+
+<script>
+  function isLast7Days(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    sevenDaysAgo.setHours(0,0,0,0);
+    endDate.setHours(0,0,0,0);
+    now.setHours(0,0,0,0);
+    return startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime();
+  }
+
+  function isThisMonth(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    firstDay.setHours(0,0,0,0);
+    lastDay.setHours(0,0,0,0);
+    startDate.setHours(0,0,0,0);
+    endDate.setHours(0,0,0,0);
+    return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+  }
+
+  function onDateRangeChange() {
+    let dateRange = document.getElementById('dateRange').value;
+    const customStart = document.getElementById('start_date');
+    const customEnd = document.getElementById('end_date');
+    const customInputs = document.getElementById('customDateInputs');
+    const customInputsEnd = document.getElementById('customDateInputsEnd');
+
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    // If manual dates are set but dateRange is not 'custom', set it to 'custom'
+    if (!dateRange || dateRange === '') {
+      if (customStart.value && customEnd.value) {
+        dateRange = 'custom';
+        document.getElementById('dateRange').value = 'custom';
+      }
+    }
+
+    if (dateRange === '7days') {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      customStart.value = sevenDaysAgo.toISOString().split('T')[0];
+      customEnd.value = now.toISOString().split('T')[0];
+    } else if (dateRange === 'thisMonth') {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      customStart.value = firstDay.toISOString().split('T')[0];
+      customEnd.value = lastDay.toISOString().split('T')[0];
+    } else if (dateRange === 'custom') {
+      customInputs.style.display = '';
+      customInputsEnd.style.display = '';
+      customStart.value = customStart.value || '';
+      customEnd.value = customEnd.value || '';
+    } else {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      customStart.value = '';
+      customEnd.value = '';
+    }
+  }
+
+  window.addEventListener('load', () => {
+    onDateRangeChange();
+  });
+</script>
 
 <!-- Daftar Transaksi -->
 <div class="card">
