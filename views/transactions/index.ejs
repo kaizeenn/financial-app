@@ -98,8 +98,9 @@
         </select>
       </div>
 
-      <div class="col-auto align-self-end">
+      <div class="col-auto align-self-end d-flex gap-2">
         <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="/transactions" class="btn btn-secondary">Clear Filter</a>
       </div>
     </form>
   </div>
@@ -130,6 +131,8 @@
     return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
   }
 
+  let isInitialLoad = true;
+
   function onDateRangeChange() {
     let dateRange = document.getElementById('dateRange').value;
     const customStart = document.getElementById('start_date');
@@ -154,6 +157,9 @@
       const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
       customStart.value = sevenDaysAgo.toISOString().split('T')[0];
       customEnd.value = now.toISOString().split('T')[0];
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
     } else if (dateRange === 'thisMonth') {
       customInputs.style.display = 'none';
       customInputsEnd.style.display = 'none';
@@ -161,6 +167,9 @@
       const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       customStart.value = firstDay.toISOString().split('T')[0];
       customEnd.value = lastDay.toISOString().split('T')[0];
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
     } else if (dateRange === 'custom') {
       customInputs.style.display = '';
       customInputsEnd.style.display = '';
@@ -171,11 +180,26 @@
       customInputsEnd.style.display = 'none';
       customStart.value = '';
       customEnd.value = '';
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
     }
   }
+  
+  // Tambahkan event listener untuk input tanggal agar mengubah dateRange ke 'custom' dan submit form
+  document.getElementById('start_date').addEventListener('change', function() {
+    document.getElementById('dateRange').value = 'custom';
+    document.getElementById('filterForm').submit();
+  });
 
+  document.getElementById('end_date').addEventListener('change', function() {
+    document.getElementById('dateRange').value = 'custom';
+    document.getElementById('filterForm').submit();
+  });
+  
   window.addEventListener('load', () => {
     onDateRangeChange();
+    isInitialLoad = false;
   });
 </script>
 

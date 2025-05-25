@@ -12,11 +12,12 @@ function buildFilterConditions(startDate, endDate, categoryId) {
   let conditions = [];
   let params = [];
 
-  if (startDate) {
+  // Validasi startDate dan endDate harus tanggal valid dan tidak kosong
+  if (startDate && !isNaN(Date.parse(startDate))) {
     conditions.push('entry_date >= ?');
     params.push(startDate);
   }
-  if (endDate) {
+  if (endDate && !isNaN(Date.parse(endDate))) {
     conditions.push('entry_date <= ?');
     params.push(endDate);
   }
