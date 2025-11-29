@@ -14,11 +14,10 @@ Financial-App adalah aplikasi untuk membantu pengguna mengelola keuangan pribadi
 ## Teknologi / Stack  
 - Node.js & Express (backend)  
 - EJS / HTML + CSS + JS (frontend)  
-- Database: (misalnya SQLite / MySQL / file SQL — tergantung implementasi)  
+- Database: MySQL
 - Struktur folder: `src/`, `routes/`, `views/`, `public/`, dll.  
 
 ## Persyaratan (Requirements)  
-- Node.js versi X ke atas  
 - Database MySQL
 - (Opsional) Paket npm: lihat `package.json`  
 
