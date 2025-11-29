@@ -19,7 +19,7 @@ Financial-App adalah aplikasi untuk membantu pengguna mengelola keuangan pribadi
 
 ## Persyaratan (Requirements)  
 - Node.js versi X ke atas  
-- Database (jika menggunakan) — misalnya MySQL / SQLite  
+- Database MySQL
 - (Opsional) Paket npm: lihat `package.json`  
 
 ## Instalasi & Setup Lokal  
