@@ -1,0 +1,229 @@
+<!-- Page Header with Filter -->
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+  <form id="periodForm" method="get" action="/user/dashboard" class="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+    <label for="periodSelect" class="text-sm font-medium text-gray-700">Periode:</label>
+    <select id="periodSelect" name="period" onchange="document.getElementById('periodForm').submit()" class="border-0 rounded px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+      <option value="monthly" <%= period === 'monthly' ? 'selected' : '' %>>Bulanan</option>
+      <option value="yearly" <%= period === 'yearly' ? 'selected' : '' %>>Tahunan</option>
+    </select>
+  </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <!-- Total Saldo Card -->
+  <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-medium text-gray-600">Total Saldo</h3>
+      <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+        </svg>
+      </div>
+    </div>
+    <div class="text-2xl font-bold text-gray-900">Rp <%= new Intl.NumberFormat('id-ID').format(totalBalance) %></div>
+    <p class="text-xs text-gray-500 mt-2">Saldo Anda saat ini</p>
+  </div>
+
+  <!-- Total Pemasukan Card -->
+  <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-sm border border-green-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-medium text-green-700">Total Pemasukan</h3>
+      <div class="w-10 h-10 bg-green-200 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M12 5a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H6a1 1 0 110-2h5V6a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    </div>
+    <div class="text-2xl font-bold text-green-700">Rp <%= new Intl.NumberFormat('id-ID').format(totalIncome) %></div>
+    <p class="text-xs text-green-600 mt-2">Pendapatan periode ini</p>
+  </div>
+
+  <!-- Total Pengeluaran Card -->
+  <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-sm border border-red-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-medium text-red-700">Total Pengeluaran</h3>
+      <div class="w-10 h-10 bg-red-200 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    </div>
+    <div class="text-2xl font-bold text-red-700">Rp <%= new Intl.NumberFormat('id-ID').format(totalExpense) %></div>
+    <p class="text-xs text-red-600 mt-2">Pengeluaran periode ini</p>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Income vs Expense Chart -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-3 h-3 bg-indigo-600 rounded-full"></div>
+      <h3 class="text-lg font-semibold text-gray-900">Pemasukan vs Pengeluaran</h3>
+    </div>
+    <p class="text-sm text-gray-500 mb-4">Tren pemasukan dan pengeluaran Anda</p>
+    <div style="position: relative; height: 300px;">
+      <canvas id="incomeExpenseChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Expense Category Chart -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-3 h-3 bg-indigo-600 rounded-full"></div>
+      <h3 class="text-lg font-semibold text-gray-900">Pengeluaran per Kategori</h3>
+    </div>
+    <p class="text-sm text-gray-500 mb-4">Distribusi pengeluaran Anda</p>
+    <div style="position: relative; height: 300px;">
+      <canvas id="expenseCategoryChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart styling configuration
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      labels: {
+        font: { size: 12, weight: 500 },
+        color: '#6b7280',
+        padding: 15,
+        usePointStyle: true
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleFont: { size: 13, weight: 'bold' },
+      bodyFont: { size: 12 },
+      padding: 12,
+      cornerRadius: 6,
+      displayColors: true,
+      callbacks: {
+        label: function(context) {
+          return ' Rp ' + new Intl.NumberFormat('id-ID').format(context.raw);
+        }
+      }
+    }
+  }
+};
+
+const incomeExpenseChart = new Chart(
+  document.getElementById('incomeExpenseChart'),
+  {
+    type: 'line',
+    data: {
+      labels: JSON.parse('<%- chartLabels %>'),
+      datasets: [
+        {
+          label: 'Pemasukan',
+          data: JSON.parse('<%- incomeData %>'),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Pengeluaran',
+          data: JSON.parse('<%- expenseData %>'),
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#ef4444',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6
+        }
+      ]
+    },
+    options: {
+      ...chartOptions,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(107, 114, 128, 0.1)',
+            drawBorder: false
+          },
+          ticks: {
+            font: { size: 11, weight: 500 },
+            color: '#9ca3af',
+            callback: function(value) {
+              return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false
+          },
+          ticks: {
+            font: { size: 11, weight: 500 },
+            color: '#9ca3af'
+          }
+        }
+      }
+    }
+  }
+);
+
+const expenseCategoryChart = new Chart(
+  document.getElementById('expenseCategoryChart'),
+  {
+    type: 'doughnut',
+    data: {
+      labels: JSON.parse('<%- categoryLabels %>'),
+      datasets: [{
+        data: JSON.parse('<%- categoryData %>'),
+        backgroundColor: [
+          '#3b82f6', // Biru
+          '#f59e0b', // Oranye
+          '#22c55e', // Hijau
+          '#eab308', // Kuning
+          '#ef4444', // Merah
+          '#6366f1', // Ungu
+          '#14b8a6'  // Tosca
+        ],
+        borderColor: '#ffffff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        legend: {
+          ...chartOptions.plugins.legend,
+          position: 'bottom'
+        },
+        tooltip: {
+          ...chartOptions.plugins.tooltip,
+          callbacks: {
+            label: function(context) {
+              const value = context.raw;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = Math.round((value / total) * 100);
+              return ` Rp ${new Intl.NumberFormat('id-ID').format(value)} (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  }
+);
+</script>

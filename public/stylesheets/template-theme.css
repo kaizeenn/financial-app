@@ -1,0 +1,155 @@
+/* Minimal template-inspired theme for Final app
+   - Uses Outfit font from Google
+   - Provides color variables and a few utility classes
+   - Lightweight; intended to work alongside existing Bootstrap styles
+*/
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+:root{
+  --brand-500: #465fff;
+  --brand-400: #7592ff;
+  --bg: #f9fafb;
+  --card-bg: #ffffff;
+  --muted: #667085;
+}
+
+html,body{
+  min-height:100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color: #0f1724;
+}
+
+/* Navbar adjustments to feel like the template */
+.navbar-template{
+  background: linear-gradient(90deg, rgba(70,95,255,0.08), rgba(117,146,255,0.06));
+  border-bottom: 1px solid rgba(16,24,40,0.03);
+}
+
+.navbar-template {
+  position: relative;
+  z-index: 1030;
+}
+
+.navbar-template .navbar-brand{
+  font-weight:700;
+  color:var(--brand-500);
+}
+
+/* Cards */
+.card-theme{
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  border: 1px solid rgba(16,24,40,0.04);
+}
+
+/* Sidebar */
+.sidebar-template{
+  background: #ffffff;
+  border-right:1px solid rgba(16,24,40,0.04);
+  min-height:100vh;
+  width: 16rem; /* consistent with Tailwind w-64 */
+  flex-shrink: 0;
+}
+.sidebar-template .nav-link{
+  color:var(--muted);
+  padding:0.75rem 1rem;
+  border-radius:8px;
+}
+.sidebar-template .nav-link.active{
+  background: rgba(70,95,255,0.08);
+  color:var(--brand-500) !important;
+  font-weight:600;
+}
+
+/* Buttons */
+.btn-brand{
+  background: var(--brand-500);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  border: none;
+}
+.btn-outline-brand{
+  background: transparent;
+  color: var(--brand-500);
+  border: 1px solid rgba(70,95,255,0.12);
+  border-radius:8px;
+}
+
+/* Text utilities */
+.text-muted-theme{ color: var(--muted); }
+
+/* Responsive tweaks */
+@media (max-width:767px){
+  .sidebar-template{ display:none; }
+}
+
+/* Safety overrides to ensure main content is visible */
+.container-fluid > .row > .col-md-10,
+.main-content,
+.content {
+  display: block !important;
+  visibility: visible !important;
+  color: #0f1724 !important;
+  min-height: auto; /* allow content to size naturally */
+}
+
+/* Make sure cards and text are readable */
+.card-theme {
+  background: var(--card-bg) !important;
+  color: #0f1724 !important;
+}
+
+/* Ensure sidebar does not sit above main content */
+.sidebar-template {
+  position: relative;
+  z-index: 1;
+}
+
+/* Main column should sit above any accidental overlays */
+.container-fluid > .row > .col-md-10 {
+  position: relative;
+  z-index: 2;
+}
+
+/* Apply flex row and sticky sidebar only on medium+ screens to avoid layout issues on small devices
+   and to prevent content from being hidden above/below the fold. */
+@media (min-width: 768px) {
+  .container-fluid > .row {
+    display: flex !important;
+    align-items: flex-start !important;
+  }
+
+  .sidebar-template {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+  }
+
+  .container-fluid > .row > .col-md-10 {
+    min-height: auto; /* avoid forcing full viewport height which can cause layout scroll issues */
+  }
+}
+
+/* Sidebar: fixed to viewport on medium+ screens with consistent width */
+.sidebar-template {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 16rem; /* 64 */
+  height: 100vh;
+  overflow: auto;
+  z-index: 20;
+}
+
+/* Ensure main content is not covered by sidebar - main left padding handled in layout */
+main {
+  margin-top: 0;
+  padding-top: 0;
+}

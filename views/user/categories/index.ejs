@@ -1,0 +1,139 @@
+<!-- Content -->
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Kategori</h2>
+  <button class="btn-brand" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <i class="bi bi-plus-lg"></i> Tambah Kategori
+  </button>
+</div>
+
+<% if (error) { %>
+  <div class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> <%= error %>
+  </div>
+<% } %>
+<% if (success) { %>
+  <div class="alert alert-success">
+    <i class="bi bi-check-circle"></i> <%= success %>
+  </div>
+<% } %>
+
+<!-- Daftar Kategori -->
+<div class="row">
+  <!-- Kategori Pemasukan -->
+  <div class="col-md-6 mb-4">
+    <div class="card-theme h-100">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Kategori Pemasukan</h5>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <% categories.filter(c => c.type === 'income').forEach(category => { %>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <%= category.name %>
+              </div>
+              <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-danger" onclick="deleteCategory('<%= category.id %>')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </dategories.filter(c => c.type === 'income').length === 0) { %>
+            <div class="list-group-item text-center text-muted">
+              Belum ada kategori pemasukan
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kategori Pengeluaran -->
+  <div class="col-md-6 mb-4">
+    <div class="card-theme h-100">
+      <div class="card-header bg-danger text-white">
+        <h5 class="card-title mb-0">Kategori Pengeluaran</h5>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <% categories.filter(c => c.type === 'expense').forEach(category => { %>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <%= category.name %>
+              </div>
+              <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-danger" onclick="deleteCategory('<%= category.id %>')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          <% }) %>ctpxda kategori pengeluaran
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Kategori Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="/user/categories">
+        <div class="modal-body">
+          <!-- Nama Kategori -->
+          <div class="mb-3">
+            <label for="name" class="form-label">Nama Kategori</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+
+          <
+            <label class="form-label">Tipe Kategori</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="type" id="typeIncome" value="income" checked>
+              <label class="btn btn-outline-success" for="typeIncome">Pemasukan</label>
+              <input type="radio" class="btn-check" name="type" id="typeExpense" value="expense">
+              <label class="btn btn-outline-danger" for="typeExpense">Pengeluaran</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn-brand">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function deleteCategory(id) {
+    if (!confirm('Yakin ingin menghapus kategori ini?')) return;
+
+    try {
+      const response = await fetch(`/user/categories/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.status === 401) {
+        alert('Sesi telah berakhir, silakan login kembali');
+        window.location.href = '/auth/login';
+        return;
+      }
+ 
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Terjadi kesalahan saat menghapus kategori');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Terjadi kesalahan saat menghapus kategori');
+    }
+  }
+</script>

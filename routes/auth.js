@@ -11,9 +11,13 @@ router.use((req, res, next) => {
 
 // GET register
 router.get('/register', (req, res) => {
-  // If already logged in, redirect to dashboard
+  // If already logged in, redirect based on level
   if (req.session && req.session.user_id) {
-    return res.redirect('/dashboard');
+    if (req.session.level === 1) {
+      return res.redirect('/admin/dashboard');
+    } else {
+      return res.redirect('/user/dashboard');
+    }
   }
   res.render('auth/register', { error: null });
 });
@@ -43,9 +47,9 @@ router.post('/register', async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
+    // Insert new user with default level 2 (user biasa)
     await db.query(
-      "INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, NOW())",
+      "INSERT INTO users (username, email, password, level, created_at) VALUES (?, ?, ?, 2, NOW())",
       [username, email, hashedPassword]
     );
 
@@ -60,9 +64,13 @@ router.post('/register', async (req, res) => {
 
 // GET login
 router.get('/login', (req, res) => {
-  // If already logged in, redirect to dashboard
+  // If already logged in, redirect based on level
   if (req.session && req.session.user_id) {
-    return res.redirect('/dashboard');
+    if (req.session.level === 1) {
+      return res.redirect('/admin/dashboard');
+    } else {
+      return res.redirect('/user/dashboard');
+    }
   }
   res.render('auth/login', { error: null });
 });
@@ -88,7 +96,14 @@ router.post('/login', async (req, res) => {
     // Simpan user di session
     req.session.user_id = user.id;
     req.session.username = user.username;
-    res.redirect('/dashboard');
+    req.session.level = user.level;
+
+    // Redirect berdasarkan level
+    if (user.level === 1) {
+      res.redirect('/admin/dashboard');
+    } else {
+      res.redirect('/user/dashboard');
+    }
   } catch (error) {
     console.error('Login error:', error);
     res.render('auth/login', { error: "Terjadi kesalahan saat login." });

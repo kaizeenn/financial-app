@@ -5,8 +5,12 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   if (!req.session.user_id) {
     res.redirect('/auth/login');
+  } else if (req.session.level === 1) {
+    // Redirect admin to admin dashboard
+    res.redirect('/admin/dashboard');
   } else {
-    res.redirect('/dashboard');
+    // Redirect regular user to user dashboard
+    res.redirect('/user/dashboard');
   }
 });
 

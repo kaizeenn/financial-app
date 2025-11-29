@@ -9,12 +9,15 @@ var expressLayouts = require('express-ejs-layouts');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var profileRouter = require('./routes/profile');
 var authRouter = require('./routes/auth');
-var dashboardRouter = require('./routes/dashboard');
-var transactionsRouter = require('./routes/transactions');
-var accountsRouter = require('./routes/accounts');
-var categoriesRouter = require('./routes/categories');
+// var dashboardRouter = require('./routes/dashboard'); // Sudah dihandle di user.js
+// var transactionsRouter = require('./routes/transactions'); // Sudah dihandle di user.js
+// var accountsRouter = require('./routes/accounts'); // Sudah dihandle di user.js
+// var categoriesRouter = require('./routes/categories'); // Sudah dihandle di user.js
+var debtsRouter = require('./routes/debts');
+var recurringRouter = require('./routes/recurring');
+var adminRouter = require('./routes/admin');
+var userRouter = require('./routes/user');
 var isAuthenticated = require('./middleware/auth');
 
 var app = express();
@@ -46,13 +49,18 @@ app.use('/auth', authRouter);
 // Root route handler
 app.use('/', indexRouter);
 
-// Protected routes
-app.use('/dashboard', isAuthenticated, dashboardRouter);
-app.use('/transactions', isAuthenticated, transactionsRouter);
-app.use('/accounts', isAuthenticated, accountsRouter);
-app.use('/categories', isAuthenticated, categoriesRouter);
+// Admin routes
+app.use('/admin', adminRouter);
+
+// User routes
+app.use('/user', userRouter);
+
+// Mount other user-related routes
+app.use('/user/debts', debtsRouter);
+app.use('/user/recurring', recurringRouter);
+
+// Rute ini mungkin masih diperlukan jika ada link lama, tapi idealnya semua link di view mengarah ke /user/...
 app.use('/users', isAuthenticated, usersRouter);
-app.use('/profile', isAuthenticated, profileRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

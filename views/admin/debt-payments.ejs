@@ -1,0 +1,216 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Pembayaran Hutang/Piutang</h1>
+  <button id="openAddPayment" type="button" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium shadow-sm">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Tambah Pembayaran
+  </button>
+</div>
+
+<!-- Payments Table -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <div class="p-6 overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">ID</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Debt</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Tipe</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Jumlah</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Tanggal</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Akun</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white">
+        <% payments.forEach(p => { %>
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-4 text-sm text-gray-900"><%= p.id %></td>
+            <td class="px-4 py-4 text-sm text-gray-900">#<%= p.debt_id %> - <%= p.creditor_debtor_name || '-' %></td>
+            <td class="px-4 py-4">
+              <% if (p.type === 'debt') { %>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Hutang</span>
+              <% } else { %>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Piutang</span>
+              <% } %>
+            </td>
+            <td class="px-4 py-4 text-sm text-gray-900"><%= p.amount %></td>
+            <td class="px-4 py-4 text-sm text-gray-900"><%= new Date(p.payment_date).toLocaleDateString('id-ID') %></td>
+            <td class="px-4 py-4 text-sm text-gray-900"><%= p.account_name || '-' %></td>
+            <td class="px-4 py-4">
+              <div class="flex gap-2">
+                <button class="edit-payment inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
+                  data-id="<%= p.id %>" data-debt_id="<%= p.debt_id %>" data-amount="<%= p.amount %>" data-payment_date="<%= new Date(p.payment_date).toISOString().slice(0,10) %>" data-account_id="<%= p.account_id || '' %>">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-8.486 8.486A2 2 0 016.05 16.95l-2.829.707.708-2.828a2 2 0 01.536-1.023l8.486-8.486z"/><path fill-rule="evenodd" d="M5 13l1.5 1.5L4 17l2.5-.5L8 15l-3-2z" clip-rule="evenodd"/></svg>
+                  Edit
+                </button>
+                <button class="delete-payment inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg" data-id="<%= p.id %>">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  Hapus
+                </button>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div id="addPaymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-gray-900">Tambah Pembayaran</h3>
+      <button id="closeAddPayment" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="addPaymentForm">
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Debt</label>
+          <select id="debt_id" name="debt_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <% debts.forEach(d => { %>
+              <option value="<%= d.id %>">#<%= d.id %> - <%= d.creditor_debtor_name %> (<%= d.type %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
+          <input type="text" id="amount" name="amount" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="contoh: 150000">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
+          <input type="date" id="payment_date" name="payment_date" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Akun (opsional)</label>
+          <select id="account_id" name="account_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">-</option>
+            <% accounts.forEach(a => { %>
+              <option value="<%= a.id %>"><%= a.name %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" id="cancelAddPayment" class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editPaymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-gray-900">Edit Pembayaran</h3>
+      <button id="closeEditPayment" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="editPaymentForm">
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" id="edit_id" name="id">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Debt</label>
+          <select id="edit_debt_id" name="debt_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <% debts.forEach(d => { %>
+              <option value="<%= d.id %>">#<%= d.id %> - <%= d.creditor_debtor_name %> (<%= d.type %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
+          <input type="text" id="edit_amount" name="amount" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
+          <input type="date" id="edit_payment_date" name="payment_date" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Akun (opsional)</label>
+          <select id="edit_account_id" name="account_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">-</option>
+            <% accounts.forEach(a => { %>
+              <option value="<%= a.id %>"><%= a.name %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" id="cancelEditPayment" class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Modal helpers
+  const show = m => { m.classList.remove('hidden'); m.classList.add('flex'); };
+  const hide = m => { m.classList.add('hidden'); m.classList.remove('flex'); };
+
+  const addModal = document.getElementById('addPaymentModal');
+  const openAdd = document.getElementById('openAddPayment');
+  const closeAdd = document.getElementById('closeAddPayment');
+  const cancelAdd = document.getElementById('cancelAddPayment');
+  const editModal = document.getElementById('editPaymentModal');
+  const closeEdit = document.getElementById('closeEditPayment');
+  const cancelEdit = document.getElementById('cancelEditPayment');
+
+  if (openAdd && addModal) openAdd.addEventListener('click', () => show(addModal));
+  if (closeAdd) closeAdd.addEventListener('click', () => hide(addModal));
+  if (cancelAdd) cancelAdd.addEventListener('click', () => hide(addModal));
+
+  // Create payment
+  document.getElementById('addPaymentForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(this));
+    try {
+      const res = await fetch('/admin/debt-payments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const result = await res.json();
+      if (result.success) location.reload(); else alert(result.message || 'Gagal menyimpan');
+    } catch(err){ console.error(err); alert('Gagal menyimpan'); }
+  });
+
+  // Open edit with dataset
+  document.querySelectorAll('.edit-payment').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('edit_id').value = btn.dataset.id;
+      document.getElementById('edit_debt_id').value = btn.dataset.debt_id;
+      document.getElementById('edit_amount').value = btn.dataset.amount;
+      document.getElementById('edit_payment_date').value = btn.dataset.payment_date;
+      document.getElementById('edit_account_id').value = btn.dataset.account_id || '';
+      show(editModal);
+    });
+  });
+
+  // Update payment
+  document.getElementById('editPaymentForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = new FormData(this);
+    const id = form.get('id');
+    const body = Object.fromEntries(form);
+    try {
+      const res = await fetch(`/admin/debt-payments/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const result = await res.json();
+      if (result.success) location.reload(); else alert(result.message || 'Gagal update');
+    } catch(err){ console.error(err); alert('Gagal update'); }
+  });
+
+  // Delete payment
+  document.querySelectorAll('.delete-payment').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      if (confirm('Hapus pembayaran ini?')) {
+        fetch(`/admin/debt-payments/${id}`, { method: 'DELETE' })
+          .then(r => r.json()).then(result => { if (result.success) location.reload(); else alert(result.message); })
+          .catch(err => { console.error(err); alert('Gagal menghapus'); });
+      }
+    });
+  });
+
+  if (closeEdit) closeEdit.addEventListener('click', () => hide(editModal));
+  if (cancelEdit) cancelEdit.addEventListener('click', () => hide(editModal));
+});
+</script>

@@ -1,0 +1,72 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Profil</h1>
+    <p class="text-sm text-gray-500 mt-1">Kelola informasi akun dan keamanan Anda</p>
+  </div>
+</div>
+
+<!-- Alerts -->
+<% if (error && error.length > 0) { %>
+  <div class="mb-6 px-4 py-3 rounded-lg bg-red-50 text-red-800 border border-red-200 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+    </svg>
+    <span><%= error %></span>
+  </div>
+<% } %>
+
+<% if (success && success.length > 0) { %>
+  <div class="mb-6 px-4 py-3 rounded-lg bg-green-50 text-green-800 border border-green-200 flex items-start gap-3">
+    <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+    </svg>
+    <span><%= success %></span>
+  </div>
+<% } %>
+
+<!-- Profile Forms -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <!-- Change Email -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-3 h-3 bg-indigo-600 rounded-full"></div>
+      <h2 class="text-lg font-semibold text-gray-900">Ubah Email</h2>
+    </div>
+    <form method="POST" action="/profile/email" class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Baru</label>
+        <input type="email" id="email" name="email" value="<%= user.email %>" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      </div>
+      <div class="flex justify-end">
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">Simpan Email</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Change Password -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-3 h-3 bg-indigo-600 rounded-full"></div>
+      <h2 class="text-lg font-semibold text-gray-900">Ubah Password</h2>
+    </div>
+    <form method="POST" action="/profile/password" class="space-y-4">
+      <div>
+        <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Password Saat Ini</label>
+        <input type="password" id="current_password" name="current_password" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">Password Baru</label>
+        <input type="password" id="new_password" name="new_password" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Konfirmasi Password Baru</label>
+        <input type="password" id="confirm_password" name="confirm_password" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <div class="flex justify-between items-start gap-3">
+        <p class="text-xs text-gray-500">Gunakan password minimal 8 karakter dengan kombinasi huruf dan angka.</p>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">Simpan Password</button>
+      </div>
+    </form>
+  </div>
+</div>

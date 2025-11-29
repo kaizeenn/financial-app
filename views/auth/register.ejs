@@ -5,9 +5,13 @@
   <title>Daftar - Catatan Keuangan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/stylesheets/auth.css">
+  <link rel="stylesheet" href="/stylesheets/template-theme.css">
 </head>
 <body>
   <div class="auth-container">
+    <div class="text-center mb-3">
+      <img src="/images/template/logo/logo-icon.svg" alt="logo" height="48">
+    </div>
     <h2>Daftar Akun</h2>
     <% if(error) { %>
       <div class="error"><%= error %></div>
@@ -29,7 +33,7 @@
         <label for="confirm_password">Konfirmasi Kata Sandi</label>
         <input type="password" id="confirm_password" name="confirm_password" required minlength="6"/>
       </div>
-      <button type="submit">Daftar</button>
+      <button type="submit" class="btn-brand">Daftar</button>
       <div class="small">Sudah punya akun? <a href="/auth/login">Masuk</a></div>
     </form>
   </div>

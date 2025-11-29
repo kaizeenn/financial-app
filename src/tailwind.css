@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom utilities and component tweaks to match template-theme variables */
+@layer base {
+  html, body {
+    font-family: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto;
+    background-color: theme('colors.gray.50');
+    color: theme('colors.gray.900');
+  }
+}
+
+@layer components {
+  .btn-brand {
+    @apply bg-brand-500 text-white rounded-md px-3 py-2;
+  }
+  .card-theme {
+    @apply bg-white rounded-xl shadow-lg border border-gray-100;
+  }
+  .sidebar-template {
+    @apply bg-white border-r border-gray-100 min-h-screen;
+  }
+}

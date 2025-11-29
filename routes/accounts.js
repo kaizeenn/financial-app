@@ -21,8 +21,21 @@ router.get('/', async (req, res) => {
       [userId]
     );
 
-    res.render('accounts/index', {
+    // Get total income and expense for current month
+    const [incomeResult] = await db.query(
+      'SELECT COALESCE(SUM(amount), 0) as totalIncome FROM income WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+      [userId]
+    );
+
+    const [expenseResult] = await db.query(
+      'SELECT COALESCE(SUM(amount), 0) as totalExpense FROM expense WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+      [userId]
+    );
+
+    res.render('user/accounts/index', {
       accounts,
+      totalIncome: incomeResult[0]?.totalIncome || 0,
+      totalExpense: expenseResult[0]?.totalExpense || 0,
       error: null,
       success: null
     });
@@ -50,8 +63,22 @@ router.post('/', async (req, res) => {
         'SELECT * FROM accounts WHERE user_id = ? ORDER BY name',
         [userId]
       );
-      return res.render('accounts/index', {
+
+      // Get total income and expense for current month
+      const [incomeResult] = await db.query(
+        'SELECT COALESCE(SUM(amount), 0) as totalIncome FROM income WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+        [userId]
+      );
+
+      const [expenseResult] = await db.query(
+        'SELECT COALESCE(SUM(amount), 0) as totalExpense FROM expense WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+        [userId]
+      );
+
+      return res.render('user/accounts/index', {
         accounts,
+        totalIncome: incomeResult[0]?.totalIncome || 0,
+        totalExpense: expenseResult[0]?.totalExpense || 0,
         error: 'Nama dan saldo harus diisi',
         success: null
       });
@@ -67,8 +94,22 @@ router.post('/', async (req, res) => {
         'SELECT * FROM accounts WHERE user_id = ? ORDER BY name',
         [userId]
       );
-      return res.render('accounts/index', {
+
+      // Get total income and expense for current month
+      const [incomeResult] = await db.query(
+        'SELECT COALESCE(SUM(amount), 0) as totalIncome FROM income WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+        [userId]
+      );
+
+      const [expenseResult] = await db.query(
+        'SELECT COALESCE(SUM(amount), 0) as totalExpense FROM expense WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+        [userId]
+      );
+
+      return res.render('user/accounts/index', {
         accounts,
+        totalIncome: incomeResult[0]?.totalIncome || 0,
+        totalExpense: expenseResult[0]?.totalExpense || 0,
         error: 'Nama akun sudah digunakan',
         success: null
       });
@@ -83,8 +124,22 @@ router.post('/', async (req, res) => {
       'SELECT * FROM accounts WHERE user_id = ? ORDER BY name',
       [userId]
     );
-    res.render('accounts/index', {
+
+    // Get total income and expense for current month
+    const [incomeResult] = await db.query(
+      'SELECT COALESCE(SUM(amount), 0) as totalIncome FROM income WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+      [userId]
+    );
+
+    const [expenseResult] = await db.query(
+      'SELECT COALESCE(SUM(amount), 0) as totalExpense FROM expense WHERE user_id = ? AND MONTH(entry_date) = MONTH(CURRENT_DATE()) AND YEAR(entry_date) = YEAR(CURRENT_DATE())',
+      [userId]
+    );
+
+    res.render('user/accounts/index', {
       accounts,
+      totalIncome: incomeResult[0]?.totalIncome || 0,
+      totalExpense: expenseResult[0]?.totalExpense || 0,
       error: null,
       success: 'Akun berhasil ditambahkan'
     });

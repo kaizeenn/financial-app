@@ -1,0 +1,664 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Transaksi</h1>
+    <p class="text-sm text-gray-500 mt-1">Kelola dan pantau semua transaksi Anda</p>
+  </div>
+  <button id="openAddTransaction" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium shadow-sm transition-colors duration-200">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="hidden sm:inline">Tambah Transaksi</span>
+  </button>
+</div>
+
+<%
+// Safe defaults for template variables
+const safePage = typeof page !== 'undefined' ? page : 1;
+const safeLimit = typeof limit !== 'undefined' ? limit : 10;
+const safeTotalCount = typeof totalCount !== 'undefined' ? totalCount : 0;
+const safeTotalPages = typeof totalPages !== 'undefined' ? totalPages : 1;
+const safeQuery = typeof query !== 'undefined' ? query : {};
+const safeType = typeof type !== 'undefined' ? type : 'all';
+const safeStartDate = typeof startDate !== 'undefined' ? startDate : '';
+const safeEndDate = typeof endDate !== 'undefined' ? endDate : '';
+const safeCategoryId = typeof categoryId !== 'undefined' ? categoryId : '';
+const safeSearch = typeof search !== 'undefined' ? search : '';
+%>
+
+<% if (error) { %>
+  <div class="mb-6 px-4 py-3 rounded-lg bg-red-50 text-red-800 border border-red-200 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+    </svg>
+    <span><%= error %></span>
+  </div>
+<% } %>
+
+<!-- Search and Filter Bar -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+  <div class="p-6">
+    <!-- Search Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="relative w-full max-w-xl">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <input type="text" id="search" name="search" value="<%= safeSearch %>" onkeyup="if(event.key === 'Enter') applyFilters()" placeholder="Cari berdasarkan deskripsi..." class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+        <button class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors" type="button" onclick="applyFilters()">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div class="flex justify-end items-center gap-2">
+            <!-- Export buttons (use current filters) -->
+            <a href="/user/transactions/report.xlsx?<%= new URLSearchParams({ start_date: safeStartDate || undefined, end_date: safeEndDate || undefined, type: safeType || 'all' }).toString() %>" class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors">
+              <i class="fas fa-file-excel"></i>
+              <span class="hidden sm:inline">Export Excel</span>
+            </a>
+            <a href="/user/transactions/report.pdf?<%= new URLSearchParams({ start_date: safeStartDate || undefined, end_date: safeEndDate || undefined, type: safeType || 'all' }).toString() %>" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
+              <i class="fas fa-file-pdf"></i>
+              <span class="hidden sm:inline">Export PDF</span>
+            </a>
+        <button id="toggleAdvancedBtn" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
+          </svg>
+          <span class="hidden sm:inline">Filter Lanjutan</span>
+        </button>
+        <a href="/user/transactions" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+          <span class="hidden sm:inline">Reset</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Advanced Filters (Collapsible) -->
+    <div id="advancedFilters" style="display:none;">
+      <form id="filterForm" method="GET" action="/user/transactions">
+        <div class="row g-3">
+          <!-- Transaction Type -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+              </svg>Jenis Transaksi
+            </label>
+            <select class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="type" name="type">
+              <option value="all" <%= safeType === 'all' ? 'selected' : '' %>>Semua</option>
+              <option value="income" <%= safeType === 'income' ? 'selected' : '' %>>Pemasukan</option>
+              <option value="expense" <%= safeType === 'expense' ? 'selected' : '' %>>Pengeluaran</option>
+            </select>
+          </div>
+
+          <!-- Date Range -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+              </svg>Rentang Waktu
+            </label>
+            <select class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="dateRange" name="dateRange" onchange="onDateRangeChange()">
+              <option value="" <%= (!safeStartDate && !safeEndDate) || (safeStartDate === '' && safeEndDate === '') ? 'selected' : '' %>>Semua</option>
+              <option value="7days" <%= (safeStartDate && safeEndDate && (function(start, end) {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                const now = new Date();
+                const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+                sevenDaysAgo.setHours(0,0,0,0);
+                endDate.setHours(0,0,0,0);
+                now.setHours(0,0,0,0);
+                return startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime();
+              })(safeStartDate, safeEndDate)) ? 'selected' : '' %>>7 Hari Terakhir</option>
+              <option value="thisMonth" <%= (safeStartDate && safeEndDate && (function(start, end) {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                firstDay.setHours(0,0,0,0);
+                lastDay.setHours(0,0,0,0);
+                startDate.setHours(0,0,0,0);
+                endDate.setHours(0,0,0,0);
+                return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+              })(safeStartDate, safeEndDate)) ? 'selected' : '' %>>Bulan Ini</option>
+              <option value="custom" <%= (safeStartDate && safeEndDate && !(function(start, end) {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                const now = new Date();
+                const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+                sevenDaysAgo.setHours(0,0,0,0);
+                endDate.setHours(0,0,0,0);
+                now.setHours(0,0,0,0);
+                if (startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime()) {
+                  return true;
+                }
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                firstDay.setHours(0,0,0,0);
+                lastDay.setHours(0,0,0,0);
+                startDate.setHours(0,0,0,0);
+                endDate.setHours(0,0,0,0);
+                return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+              })(safeStartDate, safeEndDate)) ? 'selected' : '' %>>Pilih Tanggal</option>
+            </select>
+          </div>
+
+          <!-- Custom Date Inputs -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1" id="customDateInputs" style="display: none;">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Dari Tanggal</label>
+            <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="start_date" name="start_date" value="<%= safeStartDate %>" onchange="document.getElementById('dateRange').value='custom'">
+          </div>
+
+          <div class="col-span-1 sm:col-span-1 md:col-span-1" id="customDateInputsEnd" style="display: none;">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Sampai Tanggal</label>
+            <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="end_date" name="end_date" value="<%= safeEndDate %>" onchange="document.getElementById('dateRange').value='custom'">
+          </div>
+
+          <!-- Category -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+              </svg>Kategori
+            </label>
+            <select class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="category_id" name="category_id">
+              <option value="">Semua Kategori</option>
+              <% categories.forEach(category => { %>
+                <option value="<%= category.id %>" <%= safeCategoryId == category.id ? 'selected' : '' %>><%= category.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Items per page -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+              </svg>Tampilkan
+            </label>
+            <select class="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" id="limit" name="limit">
+              <option value="10" <%= safeLimit == 10 ? 'selected' : '' %>>10 per halaman</option>
+              <option value="25" <%= safeLimit == 25 ? 'selected' : '' %>>25 per halaman</option>
+              <option value="50" <%= safeLimit == 50 ? 'selected' : '' %>>50 per halaman</option>
+              <option value="100" <%= safeLimit == 100 ? 'selected' : '' %>>100 per halaman</option>
+            </select>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="col-span-1 sm:col-span-1 md:col-span-1 flex gap-2 justify-end items-end">
+            <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>Terapkan Filter
+            </button>
+            <button type="button" class="inline-flex items-center gap-2 border border-gray-300 px-4 py-2.5 rounded-lg font-medium hover:bg-gray-50 transition-colors" onclick="clearFilters()">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>Bersihkan
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function isLast7Days(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    sevenDaysAgo.setHours(0,0,0,0);
+    endDate.setHours(0,0,0,0);
+    now.setHours(0,0,0,0);
+    return startDate.getTime() === sevenDaysAgo.getTime() && endDate.getTime() === now.getTime();
+  }
+
+  function isThisMonth(start, end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    firstDay.setHours(0,0,0,0);
+    lastDay.setHours(0,0,0,0);
+    startDate.setHours(0,0,0,0);
+    endDate.setHours(0,0,0,0);
+    return startDate.getTime() === firstDay.getTime() && endDate.getTime() === lastDay.getTime();
+  }
+
+  let isInitialLoad = true;
+
+  function onDateRangeChange() {
+    let dateRange = document.getElementById('dateRange').value;
+    const customStart = document.getElementById('start_date');
+    const customEnd = document.getElementById('end_date');
+    const customInputs = document.getElementById('customDateInputs');
+    const customInputsEnd = document.getElementById('customDateInputsEnd');
+
+    const now = new Date();
+    now.setHours(0,0,0,0);
+
+    // If manual dates are set but dateRange is not 'custom', set it to 'custom'
+    if (!dateRange || dateRange === '') {
+      if (customStart.value && customEnd.value) {
+        dateRange = 'custom';
+        document.getElementById('dateRange').value = 'custom';
+      }
+    }
+
+    if (dateRange === '7days') {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      customStart.value = sevenDaysAgo.toISOString().split('T')[0];
+      customEnd.value = now.toISOString().split('T')[0];
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
+    } else if (dateRange === 'thisMonth') {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      customStart.value = firstDay.toISOString().split('T')[0];
+      customEnd.value = lastDay.toISOString().split('T')[0];
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
+    } else if (dateRange === 'custom') {
+      customInputs.style.display = '';
+      customInputsEnd.style.display = '';
+      customStart.value = customStart.value || '';
+      customEnd.value = customEnd.value || '';
+    } else {
+      customInputs.style.display = 'none';
+      customInputsEnd.style.display = 'none';
+      customStart.value = '';
+      customEnd.value = '';
+      if (!isInitialLoad) {
+        document.getElementById('filterForm').submit();
+      }
+    }
+  }
+  
+  // Tambahkan event listener untuk input tanggal agar mengubah dateRange ke 'custom' dan submit form
+  document.getElementById('start_date').addEventListener('change', function() {
+    document.getElementById('dateRange').value = 'custom';
+    document.getElementById('filterForm').submit();
+  });
+
+  document.getElementById('end_date').addEventListener('change', function() {
+    document.getElementById('dateRange').value = 'custom';
+    document.getElementById('filterForm').submit();
+  });
+  
+  window.addEventListener('load', () => {
+    onDateRangeChange();
+    isInitialLoad = false;
+  });
+</script>
+
+<!-- Daftar Transaksi -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+    <div class="text-sm font-medium text-gray-700">Menampilkan <%= transactions.length %> dari <%= safeTotalCount %> transaksi</div>
+    <div>
+      <% if (safeTotalPages > 1) { %>
+        <nav aria-label="Transaction pagination">
+          <ul class="inline-flex -space-x-px text-sm">
+            <% if (safePage > 1) { %>
+              <li>
+                <a class="px-3 py-1 border rounded-l-md bg-white hover:bg-gray-50" href="?<%= new URLSearchParams({...safeQuery, page: safePage - 1}).toString() %>"><i class="bi bi-chevron-left"></i></a>
+              </li>
+            <% } %>
+
+            <% for (let i = Math.max(1, safePage - 2); i <= Math.min(safeTotalPages, safePage + 2); i++) { %>
+              <li>
+                <a class="px-3 py-1 border <%= i === safePage ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-gray-50' %>" href="?<%= new URLSearchParams({...safeQuery, page: i}).toString() %>"><%= i %></a>
+              </li>
+            <% } %>
+
+            <% if (safePage < safeTotalPages) { %>
+              <li>
+                <a class="px-3 py-1 border rounded-r-md bg-white hover:bg-gray-50" href="?<%= new URLSearchParams({...safeQuery, page: safePage + 1}).toString() %>"><i class="bi bi-chevron-right"></i></a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="p-4 overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Tanggal</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Kategori</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Deskripsi</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Akun</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Metode Pembayaran</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Jumlah</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white">
+        <% transactions.forEach(transaction => { %>
+        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-4 text-sm text-gray-900"><%= new Date(transaction.entry_date).toLocaleDateString('id-ID') %></td>
+          <td class="px-4 py-4">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= transaction.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+              <% const category = categories.find(c => c.id === transaction.category_id);
+                 const categoryName = category ? category.name : (transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'); %>
+              <%= categoryName %>
+            </span>
+          </td>
+          <td class="px-4 py-4 text-sm text-gray-900"><%= transaction.description || '-' %></td>
+          <td class="px-4 py-4 text-sm text-gray-700"><%= transaction.account_name || '-' %></td>
+          <td class="px-4 py-4"><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700"><%= transaction.payment_method || '-' %></span></td>
+          <td class="px-4 py-4 text-sm font-semibold <%= transaction.type === 'income' ? 'text-green-600' : 'text-red-600' %>"><%= transaction.type === 'income' ? '+' : '-' %> Rp <%= transaction.amount %></td>
+          <td class="px-4 py-4">
+            <button class="inline-flex items-center px-3 py-1.5 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors" onclick="deleteTransaction('<%= transaction.type %>', '<%= transaction.id %>')">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+        <% }) %>
+        <% if (transactions.length === 0) { %>
+          <tr>
+            <td colspan="7" class="text-center py-8 text-gray-500">
+              <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+              </svg>
+              <p class="text-sm font-medium">Belum ada transaksi</p>
+              <p class="text-xs text-gray-400 mt-1">Klik tombol "Tambah Transaksi" untuk membuat transaksi baru</p>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Transaction Modal (simple Tailwind modal) -->
+<div id="addTransactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-gray-900">Tambah Transaksi Baru</h3>
+      <button id="closeAddTransaction" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="transactionForm">
+      <div class="p-6 space-y-5">
+        <!-- Jenis Transaksi -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Transaksi</label>
+          <div class="flex gap-3">
+            <label class="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-green-500 transition-colors">
+              <input type="radio" name="type" value="income" checked class="text-green-600 focus:ring-green-500">
+              <span class="text-sm font-medium text-green-600">Pemasukan</span>
+            </label>
+            <label class="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-red-500 transition-colors">
+              <input type="radio" name="type" value="expense" class="text-red-600 focus:ring-red-500">
+              <span class="text-sm font-medium text-red-600">Pengeluaran</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Kategori -->
+        <div>
+          <label for="category_id" class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
+          <select id="category_id" name="category_id" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            <option value="">Pilih Kategori</option>
+            <% categories.forEach(category => { %>
+              <option value="<%= category.id %>" data-type="<%= category.type %>" class="<%= category.type %>-category" style="display:none"><%= category.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- Jumlah -->
+        <div>
+          <label for="amount" class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
+          <div class="flex">
+            <span class="inline-flex items-center px-4 py-2.5 bg-gray-100 border border-gray-300 border-r-0 rounded-l-lg text-gray-600 font-medium">Rp</span>
+            <input type="text" id="amount" name="amount" required class="flex-1 border border-gray-300 rounded-r-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <!-- Tanggal -->
+        <div>
+          <label for="entry_date" class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
+          <input type="date" id="entry_date" name="entry_date" required value="<%= new Date().toISOString().split('T')[0] %>" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <!-- Akun -->
+        <div>
+          <label for="account_id" class="block text-sm font-semibold text-gray-700 mb-2">Akun</label>
+          <select id="account_id" name="account_id" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">Pilih Akun (Opsional)</option>
+            <% accounts.forEach(account => { %>
+              <option value="<%= account.id %>"><%= account.name %> (Rp <%= new Intl.NumberFormat('id-ID').format(account.balance) %>)</option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- Metode Pembayaran -->
+        <div>
+          <label for="payment_method_id" class="block text-sm font-semibold text-gray-700 mb-2">Metode Pembayaran</label>
+          <select id="payment_method_id" name="payment_method_id" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">Pilih Metode Pembayaran (Opsional)</option>
+            <% paymentMethods.forEach(method => { %>
+              <option value="<%= method.id %>"><%= method.method_name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- Deskripsi -->
+        <div>
+          <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi (Opsional)</label>
+          <textarea id="description" name="description" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" id="cancelTransaction" class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">Batal</button>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">Simpan Transaksi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Apply search filters
+  function applyFilters() {
+    const searchInput = document.getElementById('search');
+    const form = document.getElementById('filterForm');
+
+    // Update search value in form
+    const searchField = form.querySelector('input[name="search"]');
+    if (searchField) {
+      searchField.value = searchInput.value;
+    }
+
+    form.submit();
+  }
+
+  // Clear all filters
+  function clearFilters() {
+    const form = document.getElementById('filterForm');
+    const inputs = form.querySelectorAll('input, select');
+
+    inputs.forEach(input => {
+      if (input.type === 'date') {
+        input.value = '';
+      } else if (input.tagName === 'SELECT') {
+        input.selectedIndex = 0;
+      } else {
+        input.value = '';
+      }
+    });
+
+    // Clear search input
+    document.getElementById('search').value = '';
+
+    // Reset date range display
+    onDateRangeChange();
+
+    form.submit();
+  }
+
+  // Filter kategori berdasarkan jenis transaksi
+  function updateCategoryOptions(type) {
+    const categorySelect = document.getElementById('category_id');
+    categorySelect.value = ''; // Reset pilihan
+
+    document.querySelectorAll('.income-category').forEach(option => {
+      option.style.display = type === 'income' ? '' : 'none';
+    });
+
+    document.querySelectorAll('.expense-category').forEach(option => {
+      option.style.display = type === 'expense' ? '' : 'none';
+    });
+  }
+
+  // Event listener untuk perubahan tipe transaksi
+  document.querySelectorAll('input[name="type"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      updateCategoryOptions(this.value);
+    });
+  });
+
+  // Set tampilan kategori awal
+  window.addEventListener('load', function() {
+    const selectedType = document.querySelector('input[name="type"]:checked').value;
+    updateCategoryOptions(selectedType);
+  });
+
+  // Handle session expired
+  async function handleSessionExpired(response) {
+    if (response.status === 401) {
+      try {
+        const data = await response.json();
+        alert('Sesi telah berakhir, silakan login kembali');
+        window.location.href = data.redirect || '/auth/login';
+      } catch (error) {
+        window.location.href = '/auth/login';
+      }
+      return true;
+    }
+    return false;
+  }
+
+  // Hapus transaksi
+  async function deleteTransaction(type, id) {
+    if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
+
+    try {
+      const response = await fetch(`/user/transactions/${type}/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (await handleSessionExpired(response)) return;
+
+      const data = await response.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Terjadi kesalahan saat menghapus transaksi');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Terjadi kesalahan saat menghapus transaksi');
+    }
+  }
+
+  // Format input jumlah ke format Indonesia
+  const amountInput = document.getElementById('amount');
+
+  amountInput.addEventListener('input', function(e) {
+    let value = this.value.replace(/[^0-9]/g, '');
+    if (value) {
+      value = new Intl.NumberFormat('id-ID').format(value);
+    }
+    this.value = value;
+  });
+
+  // Handle form submit
+  document.getElementById('transactionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    try {
+      // Ambil nilai jumlah dan konversi ke angka tanpa format
+      const rawAmount = amountInput.value.replace(/\./g, '');
+      const formData = new FormData(this);
+      formData.set('amount', rawAmount);
+
+      const response = await fetch('/user/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(formData)
+      });
+
+      if (await handleSessionExpired(response)) return;
+
+      const data = await response.json();
+
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Terjadi kesalahan saat menyimpan transaksi');
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Terjadi kesalahan saat menyimpan transaksi');
+    }
+  });
+
+  // Live search functionality (client-side filtering)
+  document.getElementById('search').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+      const description = row.cells[2].textContent.toLowerCase();
+      if (description.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+
+  // Toggle advanced filters (simple show/hide)
+  const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
+  if (toggleAdvancedBtn) {
+    toggleAdvancedBtn.addEventListener('click', function() {
+      const adv = document.getElementById('advancedFilters');
+      if (adv.style.display === 'none' || adv.style.display === '') adv.style.display = 'block'; else adv.style.display = 'none';
+    });
+  }
+
+  // Simple modal open/close handlers
+  const openAdd = document.getElementById('openAddTransaction');
+  const modal = document.getElementById('addTransactionModal');
+  const closeAdd = document.getElementById('closeAddTransaction');
+  const cancelAdd = document.getElementById('cancelTransaction');
+  if (openAdd && modal) {
+    openAdd.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
+  }
+  if (closeAdd) closeAdd.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+  if (cancelAdd) cancelAdd.addEventListener('click', () => { modal.classList.add('hidden'); modal.classList.remove('flex'); });
+
+</script>

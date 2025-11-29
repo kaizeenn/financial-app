@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
       'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
-    res.render('payment-methods/index', {
+    res.render('user/payment-methods/index', {
       methods,
       error: null,
       success: null
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
       'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
-    res.render('payment-methods/index', {
+    res.render('user/payment-methods/index', {
       methods,
       error: null,
       success: 'Metode pembayaran berhasil ditambahkan'
@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
       'SELECT * FROM payment_methods ORDER BY method_name'
     );
 
-    res.status(400).render('payment-methods/index', {
+    res.status(400).render('user/payment-methods/index', {
       methods,
       error: error.message || 'Terjadi kesalahan saat menambah metode pembayaran',
       success: null

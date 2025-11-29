@@ -1,0 +1,43 @@
+<nav class="bg-white border-b sticky top-0 z-10">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-14">
+      <div class="flex items-center gap-3">
+        <a href="/admin/dashboard" class="flex items-center">
+          <span class="font-semibold">Admin Panel</span>
+        </a>
+        <div class="hidden md:flex items-center ml-6 gap-2">
+          <a href="/admin/dashboard" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-speedometer2 mr-2"></i>Dashboard</a>
+          <a href="/admin/users" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'users' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-people mr-2"></i>Kelola User</a>
+          <a href="/admin/categories" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-tags mr-2"></i>Kelola Kategori</a>
+          <a href="/admin/payment-methods" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'payment-methods' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-credit-card mr-2"></i>Metode Pembayaran</a>
+          <a href="/admin/debt-categories" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'debt-categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-collection mr-2"></i>Kategori Hutang</a>
+          <a href="/admin/credit-categories" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'credit-categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-collection mr-2"></i>Kategori Piutang</a>
+          <a href="/admin/debt-payments" class="px-3 py-2 rounded-md text-sm <%=
+            active === 'debt-payments' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-receipt mr-2"></i>Pembayaran</a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <button class="flex items-center gap-2 text-sm text-gray-700">
+            <i class="bi bi-person-circle"></i> <span><%= locals.username || 'Admin' %></span>
+          </button>
+        </div>
+        <a href="/auth/logout" class="text-sm text-red-600 hover:underline">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>

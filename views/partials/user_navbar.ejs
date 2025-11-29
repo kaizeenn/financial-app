@@ -1,0 +1,62 @@
+<!-- Sidebar (Tailwind) -->
+<!-- Fixed sidebar for predictable alignment -->
+<aside class="sidebar-template fixed left-0 top-0 w-64 h-screen bg-white border-r overflow-auto z-20">
+  <div class="p-4 flex items-center gap-3 border-b">
+    <img src="/images/template/logo/logo-icon.svg" alt="logo" class="w-9 h-9">
+    <div>
+      <h6 class="text-lg font-semibold">Catatan Keuangan</h6>
+      <small class="text-sm text-gray-500"><%- username %></small>
+    </div>
+  </div>
+
+  <nav class="p-3 space-y-1">
+    <div class="text-xs text-gray-400 uppercase px-2">Menu Utama</div>
+    <a href="/user/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-tachometer-alt w-4"></i>
+      <span class="truncate">Dashboard</span>
+    </a>
+
+    <a href="/user/accounts" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'accounts' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-wallet w-4"></i>
+      <span class="truncate">Akun</span>
+    </a>
+
+    <a href="/user/transactions" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'transactions' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-receipt w-4"></i>
+      <span class="truncate">Transaksi</span>
+    </a>
+
+
+    <a href="/user/recurring" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'recurring' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-clock w-4"></i>
+      <span class="truncate">Transaksi Berulang</span>
+    </a>
+
+    <a href="/user/debts" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'debts' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-hand-holding-usd w-4"></i>
+      <span class="truncate">Utang & Piutang</span>
+    </a>
+
+    <a href="/user/profile" class="flex items-center gap-3 px-3 py-2 rounded-md <%=
+      active === 'profile' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+    %>">
+      <i class="fas fa-user w-4"></i>
+      <span class="truncate">Profil</span>
+    </a>
+
+    <a href="/auth/logout" class="flex items-center gap-3 px-3 py-2 rounded-md text-red-600 hover:bg-red-50">
+      <i class="fas fa-sign-out-alt w-4"></i>
+      <span class="truncate">Keluar</span>
+    </a>
+  </nav>
+</aside>

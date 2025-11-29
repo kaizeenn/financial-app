@@ -1,0 +1,28 @@
+<!--
+  Partial: card.ejs
+  Locals expected:
+    - cardTitle (string)
+    - cardSubtitle (string, optional)
+    - cardClasses (string, optional) additional classes for the outer card
+    - cardBody (string) HTML-safe markup for the card body (use <%- cardBody %> to render)
+    - cardFooter (string, optional) HTML-safe markup for footer
+-->
+<div class="<%= typeof cardClasses !== 'undefined' ? cardClasses : 'bg-white rounded-lg shadow-sm' %>">
+  <div class="p-4">
+    <% if (typeof cardSubtitle !== 'undefined' && cardSubtitle) { %>
+      <h6 class="text-sm text-gray-500 mb-2"><%= cardSubtitle %></h6>
+    <% } %>
+    <% if (typeof cardTitle !== 'undefined' && cardTitle) { %>
+      <h3 class="text-xl font-semibold mb-3"><%= cardTitle %></h3>
+    <% } %>
+
+    <% if (typeof cardBody !== 'undefined') { %>
+      <%- cardBody %>
+    <% } %>
+  </div>
+  <% if (typeof cardFooter !== 'undefined' && cardFooter) { %>
+    <div class="px-4 py-3 border-t bg-gray-50">
+      <%- cardFooter %>
+    </div>
+  <% } %>
+</div>

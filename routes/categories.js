@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
+// Middleware untuk set main layout
+router.use((req, res, next) => {
+  res.locals.layout = 'layout/main';
+  next();
+});
+
 // GET daftar kategori
 router.get('/', async (req, res) => {
   try {
@@ -14,8 +20,9 @@ router.get('/', async (req, res) => {
       'SELECT * FROM categories ORDER BY type, name'
     );
 
-    res.render('categories/index', {
+    res.render('user/categories/index', {
       categories,
+      active: 'categories',
       error: null,
       success: null
     });
@@ -41,8 +48,9 @@ router.post('/', async (req, res) => {
       const [categories] = await db.query(
         'SELECT * FROM categories ORDER BY type, name'
       );
-      return res.render('categories/index', {
+      return res.render('user/categories/index', {
         categories,
+        active: 'categories',
         error: 'Nama dan tipe kategori harus diisi',
         success: null
       });
@@ -58,8 +66,9 @@ router.post('/', async (req, res) => {
       const [categories] = await db.query(
         'SELECT * FROM categories ORDER BY type, name'
       );
-      return res.render('categories/index', {
+      return res.render('user/categories/index', {
         categories,
+        active: 'categories',
         error: 'Kategori sudah ada',
         success: null
       });
@@ -74,8 +83,9 @@ router.post('/', async (req, res) => {
     const [categories] = await db.query(
       'SELECT * FROM categories ORDER BY type, name'
     );
-    res.render('categories/index', {
+    res.render('user/categories/index', {
       categories,
+      active: 'categories',
       error: null,
       success: 'Kategori berhasil ditambahkan'
     });

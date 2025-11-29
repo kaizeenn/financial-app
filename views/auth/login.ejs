@@ -5,9 +5,13 @@
   <title>Login - Catatan Keuangan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/stylesheets/auth.css">
+  <link rel="stylesheet" href="/stylesheets/template-theme.css">
 </head>
 <body>
   <div class="auth-container">
+    <div class="text-center mb-3">
+      <img src="/images/template/logo/logo-icon.svg" alt="logo" height="48">
+    </div>
     <h2>Masuk</h2>
     <% if(error) { %>
       <div class="error"><%= error %></div>
@@ -21,7 +25,7 @@
         <label for="password">Kata Sandi</label>
         <input type="password" id="password" name="password" required/>
       </div>
-      <button type="submit">Masuk</button>
+      <button type="submit" class="btn-brand">Masuk</button>
       <div class="small">Belum punya akun? <a href="/auth/register">Daftar</a></div>
     </form>
   </div>

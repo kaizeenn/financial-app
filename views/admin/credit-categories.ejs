@@ -1,0 +1,160 @@
+<!-- Page Header -->
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">Kategori Piutang</h1>
+  <button id="openAdd" type="button" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-medium shadow-sm">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Tambah Kategori
+  </button>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <div class="p-6 overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">ID</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Nama</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gray-50">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white">
+        <% items.forEach(item => { %>
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="px-4 py-4 text-sm text-gray-900"><%= item.id %></td>
+            <td class="px-4 py-4 text-sm text-gray-900"><%= item.name %></td>
+            <td class="px-4 py-4">
+              <div class="flex gap-2">
+                <button class="edit-item inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
+                        data-id="<%= item.id %>" data-name="<%= item.name %>">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-8.486 8.486A2 2 0 016.05 16.95l-2.829.707.708-2.828a2 2 0 01.536-1.023l8.486-8.486z"/><path fill-rule="evenodd" d="M5 13l1.5 1.5L4 17l2.5-.5L8 15l-3-2z" clip-rule="evenodd"/></svg>
+                  Edit
+                </button>
+                <button class="delete-item inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                        data-id="<%= item.id %>" data-name="<%= item.name %>">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  Hapus
+                </button>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-gray-900">Tambah Kategori Piutang</h3>
+      <button id="closeAdd" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="addForm">
+      <div class="p-6 space-y-5">
+        <div>
+          <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Nama</label>
+          <input type="text" id="name" name="name" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" id="cancelAdd" class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-40 p-4">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-gray-900">Edit Kategori Piutang</h3>
+      <button id="closeEdit" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <form id="editForm">
+      <div class="p-6 space-y-5">
+        <input type="hidden" id="editId" name="id">
+        <div>
+          <label for="editName" class="block text-sm font-semibold text-gray-700 mb-2">Nama</label>
+          <input type="text" id="editName" name="name" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button type="button" id="cancelEdit" class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Batal</button>
+        <button type="submit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const addModal = document.getElementById('addModal');
+  const openAdd = document.getElementById('openAdd');
+  const closeAdd = document.getElementById('closeAdd');
+  const cancelAdd = document.getElementById('cancelAdd');
+  const editModal = document.getElementById('editModal');
+  const closeEdit = document.getElementById('closeEdit');
+  const cancelEdit = document.getElementById('cancelEdit');
+
+  function show(m){ m.classList.remove('hidden'); m.classList.add('flex'); }
+  function hide(m){ m.classList.add('hidden'); m.classList.remove('flex'); }
+  if (openAdd && addModal) openAdd.addEventListener('click', () => show(addModal));
+  if (closeAdd) closeAdd.addEventListener('click', () => hide(addModal));
+  if (cancelAdd) cancelAdd.addEventListener('click', () => hide(addModal));
+
+  // Create
+  document.getElementById('addForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(this));
+    try {
+      const res = await fetch('/admin/credit-categories', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      const result = await res.json();
+      if (result.success) location.reload(); else alert(result.message || 'Gagal menyimpan');
+    } catch(err){ console.error(err); alert('Gagal menyimpan'); }
+  });
+
+  // Open edit
+  document.querySelectorAll('.edit-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('editId').value = btn.dataset.id;
+      document.getElementById('editName').value = btn.dataset.name;
+      show(editModal);
+    });
+  });
+
+  // Update
+  document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = new FormData(this);
+    const id = form.get('id');
+    const body = Object.fromEntries(form);
+    try {
+      const res = await fetch(`/admin/credit-categories/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      const result = await res.json();
+      if (result.success) location.reload(); else alert(result.message || 'Gagal update');
+    } catch(err){ console.error(err); alert('Gagal update'); }
+  });
+
+  // Delete
+  document.querySelectorAll('.delete-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id; const name = btn.dataset.name;
+      if (confirm(`Hapus kategori \"${name}\"?`)) {
+        fetch(`/admin/credit-categories/${id}`, { method: 'DELETE' })
+          .then(r => r.json()).then(result => { if (result.success) location.reload(); else alert(result.message); })
+          .catch(err => { console.error(err); alert('Gagal menghapus'); });
+      }
+    });
+  });
+
+  if (closeEdit) closeEdit.addEventListener('click', () => hide(editModal));
+  if (cancelEdit) cancelEdit.addEventListener('click', () => hide(editModal));
+});
+</script>
