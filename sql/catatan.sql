@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 29, 2025 at 10:22 AM
+-- Generation Time: Nov 29, 2025 at 12:21 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -100,6 +100,50 @@ INSERT INTO `credit_categories` (`id`, `name`) VALUES
 (8, 'Deposit'),
 (9, 'Pembayaran Tertunda'),
 (10, 'Piutang Lainnya');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crypto_assets`
+--
+
+CREATE TABLE `crypto_assets` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `crypto_id` int NOT NULL,
+  `amount` decimal(20,8) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crypto_list`
+--
+
+CREATE TABLE `crypto_list` (
+  `id` int NOT NULL,
+  `symbol` varchar(20) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `coingecko_id` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `crypto_list`
+--
+
+INSERT INTO `crypto_list` (`id`, `symbol`, `name`, `coingecko_id`) VALUES
+(1, 'BTC', 'Bitcoin', 'bitcoin'),
+(2, 'ETH', 'Ethereum', 'ethereum'),
+(3, 'BNB', 'Binance Coin', 'binancecoin'),
+(4, 'SOL', 'Solana', 'solana'),
+(5, 'USDT', 'Tether', 'tether'),
+(6, 'USDC', 'USD Coin', 'usd-coin'),
+(7, 'XRP', 'XRP', 'ripple'),
+(8, 'ADA', 'Cardano', 'cardano'),
+(9, 'DOGE', 'Dogecoin', 'dogecoin'),
+(10, 'TRX', 'TRON', 'tron'),
+(11, 'TON', 'Toncoin', 'the-open-network');
 
 -- --------------------------------------------------------
 
@@ -358,6 +402,20 @@ ALTER TABLE `credit_categories`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `crypto_assets`
+--
+ALTER TABLE `crypto_assets`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `crypto_id` (`crypto_id`);
+
+--
+-- Indexes for table `crypto_list`
+--
+ALTER TABLE `crypto_list`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `debts`
 --
 ALTER TABLE `debts`
@@ -454,6 +512,18 @@ ALTER TABLE `credit_categories`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `crypto_assets`
+--
+ALTER TABLE `crypto_assets`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `crypto_list`
+--
+ALTER TABLE `crypto_list`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT for table `debts`
 --
 ALTER TABLE `debts`
@@ -510,6 +580,13 @@ ALTER TABLE `users`
 --
 ALTER TABLE `accounts`
   ADD CONSTRAINT `accounts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `crypto_assets`
+--
+ALTER TABLE `crypto_assets`
+  ADD CONSTRAINT `crypto_assets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `crypto_assets_ibfk_2` FOREIGN KEY (`crypto_id`) REFERENCES `crypto_list` (`id`);
 
 --
 -- Constraints for table `debts`

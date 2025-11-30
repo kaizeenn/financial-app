@@ -49,6 +49,8 @@ router.use((req, res, next) => {
   next();
 });
 
+const { fetchPrice, fetchPrices } = require('../services/cryptoPriceService');
+
 // GET user dashboard
 router.get('/dashboard', async (req, res) => {
   try {
@@ -170,6 +172,25 @@ router.get('/dashboard', async (req, res) => {
       };
     }).filter(cat => cat.total > 0);
 
+    // Compute total crypto value (IDR) using real-time prices
+    let totalCryptoValueIdr = 0;
+    const [cryptoAssets] = await db.query(
+      `SELECT ca.amount, cl.coingecko_id
+       FROM crypto_assets ca
+       JOIN crypto_list cl ON ca.crypto_id = cl.id
+       WHERE ca.user_id = ?`,
+      [userId]
+    );
+    if (cryptoAssets.length > 0) {
+      const uniqueCoins = [...new Set(cryptoAssets.map(a => a.coingecko_id))];
+      const priceMapFull = await fetchPrices(uniqueCoins);
+      totalCryptoValueIdr = cryptoAssets.reduce((sum, a) => {
+        const p = priceMapFull[a.coingecko_id];
+        const idr = p ? Number(p.idr || 0) : 0;
+        return sum + Number(a.amount) * idr;
+      }, 0);
+    }
+
     // Format data for charts
     const monthlyDataReversed = [...monthlyData].reverse();
     const chartData = {
@@ -190,6 +211,7 @@ router.get('/dashboard', async (req, res) => {
       totalBalance: accounts[0]?.totalBalance || 0,
       totalIncome: totals[0]?.totalIncome || 0,
       totalExpense: totals[0]?.totalExpense || 0,
+      totalCryptoValueIdr,
       chartLabels: JSON.stringify(chartData.labels),
       incomeData: JSON.stringify(chartData.incomeData),
       expenseData: JSON.stringify(chartData.expenseData),

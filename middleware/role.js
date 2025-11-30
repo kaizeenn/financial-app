@@ -7,9 +7,10 @@ function roleMiddleware(requiredLevel) {
 
     // Cek level user
     if (req.session.level !== requiredLevel) {
-      return res.status(403).render('error', {
-        message: 'Akses ditolak',
-        error: { status: 403 }
+      return res.status(403).render('error-403', {
+        title: '403 - Akses Ditolak',
+        username: req.session.username || '',
+        active: ''
       });
     }
 
