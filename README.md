@@ -1,82 +1,224 @@
-# Financial-App
+# 💰 Financial App
 
-## Deskripsi  
-Financial-App adalah aplikasi untuk membantu pengguna mengelola keuangan pribadi / finansial — mencatat pemasukan & pengeluaran, mengelola data keuangan, dan memudahkan pengguna dalam melihat ringkasan finansial.  
+> Aplikasi manajemen keuangan pribadi lengkap dengan fitur transaksi, investasi crypto & emas, hutang piutang, dan rekening bank.
 
-## Fitur Utama  
-- Tambah pemasukan & pengeluaran  
-- Simpan data transaksi (tanggal, kategori, nominal, deskripsi)  
-- Melihat daftar transaksi  
-- Fitur edit / hapus transaksi  
-- Ringkasan keuangan (misalnya total pemasukan, total pengeluaran, saldo bersih)  
-- (Opsional) Filter / pencarian berdasarkan tanggal atau kategori  
+[![Node.js](https://img.shields.io/badge/Node.js-16%2B-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.21.2-blue.svg)](https://expressjs.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)](https://www.mysql.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.8-38bdf8.svg)](https://tailwindcss.com/)
 
-## Teknologi / Stack  
-- Node.js & Express (backend)  
-- EJS / HTML + CSS + JS (frontend)  
-- Database: MySQL
-- Struktur folder: `src/`, `routes/`, `views/`, `public/`, dll.  
+## 📸 Screenshot
 
-## Investasi (Crypto & Emas)
-Modul investasi memungkinkan penyimpanan aset crypto (provider: CoinGecko) dan emas (provider: MetalPriceAPI). Data aset tersimpan di tabel `investment_assets`, sedangkan kepemilikan pengguna di `investment_portfolio`.
+<div align="center">
+  <img src="public/images/template/Screenshot/1.png" alt="Dashboard" width="45%">
+  <img src="public/images/template/Screenshot/2.png" alt="Transactions" width="45%">
+  <img src="public/images/template/Screenshot/3.png" alt="Investments" width="45%">
+  <img src="public/images/template/Screenshot/4.png" alt="Admin Panel" width="45%">
+</div>
 
-### Harga Realtime
-- Crypto: diambil dari CoinGecko endpoint `simple/price` (IDR & USD).
-- Emas: diambil dari MetalPriceAPI endpoint:
-	`https://api.metalpriceapi.com/v1/latest?api_key=METALAPI_KEY&base=USD&symbols=XAU`
-	Logika harga USD per troy ounce: `1 / rates.XAU` sesuai spesifikasi.
+## ✨ Fitur Utama
 
-### Konversi IDR
-- Menggunakan `USD_IDR_RATE` dari `.env` jika tersedia.
-- Jika tidak ada, fallback ambil kurs dari `https://api.exchangerate.host/latest?base=USD&symbols=IDR`.
-- Jika itu gagal, fallback nilai tetap 15000.
+### 📊 Dashboard & Transaksi
+- **Dashboard Interaktif** - Visualisasi keuangan dengan grafik dan ringkasan realtime
+- **Manajemen Transaksi** - Catat pemasukan & pengeluaran dengan kategori
+- **Laporan Transaksi** - Export ke Excel/PDF dengan filter tanggal
+- **Transaksi Berulang** - Otomasi pencatatan transaksi rutin (bulanan/harian)
 
-### Variabel Lingkungan
-Tambahkan ke file `.env` (jangan commit ke repo):
+### 💼 Investasi (Crypto & Emas)
+- **Portofolio Investasi** - Kelola aset crypto (Bitcoin, Ethereum, dll) dan emas
+- **Harga Realtime** - Integrasi dengan CoinGecko API & MetalPriceAPI
+- **Multi Unit** - Input dalam Coin/Gram/Troy Ounce dengan konversi otomatis
+- **Cache Harga Emas** - Sistem caching 24 jam untuk efisiensi API
+
+### 🏦 Rekening & Hutang Piutang
+- **Multi Akun** - Kelola berbagai rekening bank (saldo, mutasi)
+- **Hutang & Piutang** - Tracking pembayaran dengan status dan kategori
+- **Pembayaran Cicilan** - Catat pembayaran parsial dengan riwayat
+
+### 👨‍💼 Admin Panel
+- **Manajemen User** - CRUD users dengan role (admin/user)
+- **Master Data** - Kelola kategori, metode pembayaran, provider investasi
+- **Gold Cache Admin** - Monitor dan refresh cache harga emas
+
+## 🛠️ Teknologi
+
+**Backend:**
+- Node.js + Express.js
+- MySQL2 (Database)
+- express-session (Authentication)
+- bcryptjs (Password hashing)
+- dotenv (Environment variables)
+
+**Frontend:**
+- EJS (Templating)
+- Tailwind CSS (Styling)
+- Chart.js (Visualisasi)
+- Axios (HTTP client)
+
+**API Integrasi:**
+- CoinGecko API - Harga crypto realtime
+- MetalPriceAPI - Harga emas (XAU/USD)
+- ExchangeRate.host - Kurs USD→IDR
+
+## 📋 Persyaratan Sistem
+
+- **Node.js** >= 16.x
+- **MySQL** >= 8.0
+- **npm** >= 8.x
+
+## 🚀 Instalasi & Setup
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/kaizeenn/financial-app.git
+cd financial-app
 ```
-METALAPI_KEY=YOUR_METALPRICEAPI_KEY
-USD_IDR_RATE=15500        # opsional, untuk konversi cepat
-```
-`GOLDAPI_TOKEN` sudah tidak lagi digunakan setelah migrasi ke MetalPriceAPI (hapus dari .env bila masih ada).
 
-### Contoh Respons Harga Emas
-```
-{
-	"usd": 2024.50,
-	"idr": 30367500,
-	"rate": 0.0004941
-}
+### 2. Install Dependencies
+```bash
+npm install
 ```
 
-### Endpoint Harga Aset
-`GET /invest/get-price?asset_id=<id>`
-- Mengembalikan JSON price realtime untuk aset crypto atau emas.
+### 3. Setup Database
+```sql
+-- Buat database
+CREATE DATABASE catatan;
 
-### Satuan Input
-- Crypto disimpan dalam satuan koin.
-- Emas disimpan dalam satuan troy ounce; jika pengguna input gram, sistem otomatis konversi (1 ozt = 31.1034768 g). Kolom `input_unit` menyimpan satuan asli yang diinput.
+-- Import schema dari file sql/catatan.sql
+mysql -u root -p catatan < sql/catatan.sql
+```
 
-## Migrasi GoldAPI ke MetalPriceAPI
-Gunakan skrip: `node scripts/migrate_gold_to_metal.js`
-Langkah yang dilakukan:
-- Menambahkan kolom `input_unit` (jika belum ada) ke tabel `investment_portfolio`.
-- Mengubah semua baris `provider_source='goldapi'` menjadi `yellow_metal`.
-- Bersihkan `GOLDAPI_TOKEN` dari `.env`.
+### 4. Konfigurasi Environment
+Buat file `.env` di root project:
+```env
+# Database
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=catatan
 
-Perintah:
+# API Keys
+METALAPI_KEY=your_metalpriceapi_key_here
+USD_IDR_RATE=15500
+
+# Session (optional)
+SESSION_SECRET=your_secret_key_here
+```
+
+### 5. Build CSS (Development)
+```bash
+npm run build:css
+# atau watch mode:
+npm run watch:css
+```
+
+### 6. Jalankan Aplikasi
+```bash
+npm start
+# atau development mode:
+npm run dev
+```
+
+Aplikasi berjalan di: **http://localhost:3000**
+
+## 🔑 Default Login
+
+**Admin:**
+- Username: `atmin`
+- Password: `atmin123`
+
+**User:**
+- Username: `iril`
+- Password: `iril123`
+
+## 📁 Struktur Folder
+
+```
+financial-app/
+├── bin/
+│   └── www                 # Entry point
+├── config/
+│   └── db.js              # Koneksi database
+├── controllers/           # Business logic
+│   ├── investmentController.js
+│   └── ...
+├── middleware/            # Auth & role middleware
+├── routes/               # Route handlers
+│   ├── admin.js
+│   ├── investmentRoutes.js
+│   └── ...
+├── services/             # External API services
+│   └── investmentPriceService.js
+├── views/                # EJS templates
+│   ├── admin/
+│   ├── user/
+│   ├── layout/
+│   └── partials/
+├── public/               # Static files
+│   ├── stylesheets/
+│   └── images/
+├── scripts/              # Utility scripts
+│   └── migrate_gold_to_metal.js
+└── sql/                  # Database schema
+    └── catatan.sql
+```
+
+## 🔧 Migrasi Database
+
+Jika upgrade dari GoldAPI ke MetalPriceAPI:
 ```bash
 node scripts/migrate_gold_to_metal.js
 ```
-Pastikan koneksi database di `config/db.js` sudah benar sebelum menjalankan.
 
-## Persyaratan (Requirements)  
-- Database MySQL
-- (Opsional) Paket npm: lihat `package.json`  
+## 📊 Fitur API
 
-## Instalasi & Setup Lokal  
-```bash
-git clone https://github.com/kaizeenn/financial-app.git  
-cd financial-app  
-npm install  
-# jika menggunakan database: konfigurasi koneksi di config / .env  
-npm start  
+### Endpoint Harga Investasi
+```http
+GET /invest/get-price?asset_id=<ID>
+```
+Response:
+```json
+{
+  "usd": 2024.50,
+  "idr": 31025000,
+  "rate": 0.0004941
+}
+```
+
+### Admin Gold Cache
+```http
+GET /admin/gold-cache        # View cache
+POST /admin/gold-cache/refresh  # Force refresh
+```
+
+## 🎨 Customization
+
+### Tambah Provider Investasi
+Edit `services/investmentPriceService.js`:
+```javascript
+case 'new_provider':
+  return await getNewProviderPrice();
+```
+
+### Ubah Tema
+Edit `tailwind.config.cjs` untuk custom color palette.
+
+## 🤝 Kontribusi
+
+Pull requests are welcome! Untuk perubahan besar, harap buka issue terlebih dahulu.
+
+## 📝 License
+
+[MIT](LICENSE)
+
+## 👤 Author
+
+**Kaizen**
+- GitHub: [@kaizeenn](https://github.com/kaizeenn)
+
+## 🙏 Acknowledgments
+
+- CoinGecko API untuk data crypto
+- MetalPriceAPI untuk harga emas
+- Chart.js untuk visualisasi data
+- Tailwind CSS untuk styling
