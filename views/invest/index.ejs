@@ -1,0 +1,52 @@
+<%- include('../partials/user_navbar', { username, active }) %>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Portofolio Investasi</h1>
+  <a href="/invest/add" class="mb-4 inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Tambah Aset</a>
+  <table class="min-w-full bg-white border rounded shadow-sm">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="py-2 px-4 border-b">Jenis</th>
+        <th class="py-2 px-4 border-b">Nama</th>
+        <th class="py-2 px-4 border-b">Jumlah</th>
+        <th class="py-2 px-4 border-b">Harga Realtime</th>
+        <th class="py-2 px-4 border-b">Nilai Total</th>
+        <th class="py-2 px-4 border-b">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (portfolio.length === 0) { %>
+        <tr><td colspan="6" class="text-center py-4">Belum ada aset investasi.</td></tr>
+      <% } %>
+      <% portfolio.forEach(item => { %>
+        <tr>
+          <td class="py-2 px-4 border-b"><%= item.asset_type %></td>
+          <td class="py-2 px-4 border-b"><%= item.name %></td>
+          <td class="py-2 px-4 border-b"><%= item.amount %></td>
+          <td class="py-2 px-4 border-b">
+            <% const price = prices[item.id] || {idr:0,usd:0}; %>
+            <span>Rp <%= price.idr ? price.idr.toLocaleString('id-ID') : '-' %></span>
+            <span class="block text-xs text-gray-500">(USD <%= price.usd ? price.usd.toLocaleString('en-US') : '-' %>)</span>
+            <% if (item.provider_source === 'goldapi' && (price.idr === 0 || price.usd === 0)) { %>
+              <span class="block text-xs text-amber-600">
+                Harga emas tidak tersedia.
+                <% if (price.error) { %>
+                  (<%= price.error %>)
+                <% } else { %>
+                  Pastikan file .env berisi GOLDAPI_TOKEN dan server sudah direstart.
+                <% } %>
+              </span>
+            <% } %>
+          </td>
+          <td class="py-2 px-4 border-b">Rp <%= ((item.amount * (prices[item.id]?.idr || 0)) || 0).toLocaleString('id-ID') %></td>
+          <td class="py-2 px-4 border-b">
+            <a href="/invest/edit/<%= item.id %>" class="text-blue-600 hover:underline">Edit</a> |
+            <form action="/invest/delete/<%= item.id %>" method="POST" style="display:inline" onsubmit="return confirm('Yakin hapus aset ini?')">
+              <button type="submit" class="text-red-600 hover:underline bg-transparent border-0 p-0 m-0">Hapus</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <div class="mt-6 text-xl font-semibold">Total Investasi: Rp <%= total.toLocaleString('id-ID') %></div>
+</div>

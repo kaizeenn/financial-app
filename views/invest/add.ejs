@@ -1,0 +1,59 @@
+<%- include('../partials/user_navbar', { username, active }) %>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">Tambah Aset Investasi</h1>
+  <form action="/invest/add" method="POST" class="max-w-md bg-white p-6 rounded shadow-sm">
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Pilih Aset</label>
+      <select name="asset_id" id="asset_id" class="w-full border rounded px-3 py-2" required>
+        <option value="">-- Pilih --</option>
+        <% assets.forEach(a => { %>
+          <option value="<%= a.id %>" data-source="<%= a.provider_source %>" data-provider="<%= a.provider_id %>"><%= a.asset_type %> - <%= a.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Jumlah</label>
+      <input type="number" name="amount" step="any" min="0" class="w-full border rounded px-3 py-2" required />
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Satuan</label>
+      <select name="unit" id="unit" class="w-full border rounded px-3 py-2" required>
+        <option value="auto">Otomatis</option>
+        <option value="coin">Coin</option>
+        <option value="gram">Gram (Emas)</option>
+        <option value="troy_ounce">Troy Ounce (Emas)</option>
+      </select>
+      <p class="text-xs text-gray-500 mt-1">Untuk emas, pilih Gram atau Troy Ounce. Untuk crypto, pilih Coin.</p>
+    </div>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Harga Realtime</label>
+      <div id="price-preview">-</div>
+    </div>
+    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Simpan</button>
+    <a href="/invest" class="ml-3 text-gray-600 hover:underline">Batal</a>
+  </form>
+</div>
+<script>
+  document.getElementById('asset_id').addEventListener('change', function() {
+    const assetId = this.value;
+    if (!assetId) return document.getElementById('price-preview').innerText = '-';
+    fetch(`/invest/get-price?asset_id=${assetId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) return document.getElementById('price-preview').innerText = 'Gagal ambil harga';
+        document.getElementById('price-preview').innerText = `Rp ${data.idr.toLocaleString('id-ID')} (USD ${data.usd.toLocaleString('en-US')})`;
+      });
+  });
+
+  // Atur default unit berdasarkan jenis aset
+  document.getElementById('asset_id').addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    const source = selected?.dataset?.source || '';
+    const unitEl = document.getElementById('unit');
+    if (source === 'goldapi') {
+      unitEl.value = 'gram';
+    } else {
+      unitEl.value = 'coin';
+    }
+  });
+</script>

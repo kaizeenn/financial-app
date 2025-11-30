@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const roleMiddleware = require('../middleware/role');
+const { getCachedGoldPrice, fetchGoldFromAPI } = require('../services/investmentPriceService');
 // Helper: update debt status after payment changes
 async function updateDebtStatus(db, debtId) {
   try {
@@ -290,6 +291,48 @@ router.delete('/categories/:id', async (req, res) => {
   } catch (error) {
     console.error('Delete category error:', error);
     res.status(500).json({ success: false, message: 'Terjadi kesalahan saat menghapus kategori' });
+  }
+});
+
+// =====================
+// Gold Price Cache (Admin)
+// =====================
+router.get('/gold-cache', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM gold_price_cache ORDER BY updated_at DESC LIMIT 1');
+    const cache = rows && rows[0];
+    res.render('admin/gold-cache', {
+      title: 'Gold Price Cache',
+      cache,
+      active: 'gold-cache'
+    });
+  } catch (error) {
+    console.error('Admin gold-cache error:', error);
+    res.status(500).render('error', { message: 'Gagal memuat gold price cache', error });
+  }
+});
+
+router.post('/gold-cache/refresh', async (req, res) => {
+  try {
+    // force fetch and update cache
+    const fresh = await fetchGoldFromAPI();
+    const [rows] = await db.query('SELECT id FROM gold_price_cache ORDER BY updated_at DESC LIMIT 1');
+    if (rows.length) {
+      await db.query(
+        'UPDATE gold_price_cache SET price_usd = ?, price_idr = ?, rate = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [fresh.price_usd, fresh.price_idr, fresh.rate, rows[0].id]
+      );
+    } else {
+      await db.query(
+        'INSERT INTO gold_price_cache (price_usd, price_idr, rate) VALUES (?, ?, ?)',
+        [fresh.price_usd, fresh.price_idr, fresh.rate]
+      );
+    }
+    res.redirect('/admin/gold-cache');
+  } catch (error) {
+    console.error('Admin gold-cache refresh error:', error);
+    // fallback: just redirect, UI will still show existing cache
+    res.redirect('/admin/gold-cache');
   }
 });
 

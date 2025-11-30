@@ -24,11 +24,11 @@
     </div>
     <% 
       const saldo = Number(totalBalance) || 0;
-      const crypto = Number(totalCryptoValueIdr) || 0;
-      const totalAset = saldo + crypto;
+      const invest = Number(totalInvestmentValueIdr) || 0;
+      const totalAset = saldo + invest;
     %>
     <div class="text-2xl font-bold text-purple-700">Rp <%= new Intl.NumberFormat('id-ID').format(totalAset) %></div>
-    <p class="text-xs text-purple-600 mt-2">Saldo + Aset Crypto</p>
+    <p class="text-xs text-purple-600 mt-2">Saldo + Aset Investasi</p>
   </div>
   <!-- Total Saldo Card -->
   <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
@@ -72,20 +72,20 @@
     <p class="text-xs text-red-600 mt-2">Pengeluaran periode ini</p>
   </div>
 
-  <!-- Total Aset Crypto Card -->
-  <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-sm border border-indigo-200 p-6 hover:shadow-md transition-shadow duration-300">
+  <!-- Total Aset Investasi Card -->
+  <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow-sm border border-yellow-200 p-6 hover:shadow-md transition-shadow duration-300">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-medium text-indigo-700">Total Aset Crypto</h3>
-      <div class="w-10 h-10 bg-indigo-200 rounded-lg flex items-center justify-center">
-        <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 5a1 1 0 10-2 0v1H8a1 1 0 100 2h1v4a1 1 0 102 0v-4h1a1 1 0 100-2h-1V7z" />
+      <h3 class="text-sm font-medium text-yellow-700">Total Aset Investasi</h3>
+      <div class="w-10 h-10 bg-yellow-200 rounded-lg flex items-center justify-center">
+        <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-5a1 1 0 012 0v2a1 1 0 11-2 0v-2zm0-6a1 1 0 012 0v3a1 1 0 11-2 0V7z" clip-rule="evenodd" />
         </svg>
       </div>
     </div>
-    <div class="text-2xl font-bold text-indigo-700">Rp <%= new Intl.NumberFormat('id-ID').format(Number(totalCryptoValueIdr) || 0) %></div>
-    <p class="text-xs text-indigo-600 mt-2">Nilai portofolio crypto (live)</p>
+    <div class="text-2xl font-bold text-yellow-700">Rp <%= new Intl.NumberFormat('id-ID').format(Number(totalInvestmentValueIdr) || 0) %></div>
+    <p class="text-xs text-yellow-600 mt-2">Nilai portofolio investasi (live)</p>
     <div class="mt-4">
-      <a href="/crypto" class="inline-block px-3 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">Lihat Detail</a>
+      <a href="/invest" class="inline-block px-3 py-2 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700">Lihat Detail</a>
     </div>
   </div>
 </div>

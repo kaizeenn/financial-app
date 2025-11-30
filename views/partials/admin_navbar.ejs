@@ -1,4 +1,5 @@
 <nav class="bg-white border-b sticky top-0 z-10">
+  <% const currentActive = (typeof active === 'undefined') ? '' : active; %>
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex items-center justify-between h-14">
       <div class="flex items-center gap-3">
@@ -7,26 +8,51 @@
         </a>
         <div class="hidden md:flex items-center ml-6 gap-2">
           <a href="/admin/dashboard" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+            currentActive === 'dashboard' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
           %>"><i class="bi bi-speedometer2 mr-2"></i>Dashboard</a>
-          <a href="/admin/users" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'users' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-people mr-2"></i>Kelola User</a>
-          <a href="/admin/categories" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-tags mr-2"></i>Kelola Kategori</a>
-          <a href="/admin/payment-methods" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'payment-methods' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-credit-card mr-2"></i>Metode Pembayaran</a>
-          <a href="/admin/debt-categories" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'debt-categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-collection mr-2"></i>Kategori Hutang</a>
-          <a href="/admin/credit-categories" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'credit-categories' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-collection mr-2"></i>Kategori Piutang</a>
-          <a href="/admin/debt-payments" class="px-3 py-2 rounded-md text-sm <%=
-            active === 'debt-payments' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
-          %>"><i class="bi bi-receipt mr-2"></i>Pembayaran</a>
+
+          <!-- Dropdown sederhana: Manajemen -->
+          <div class="relative">
+            <button id="mgmtBtn" class="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+              <i class="bi bi-wrench"></i><span>Manajemen</span>
+              <i class="bi bi-caret-down-fill text-xs"></i>
+            </button>
+            <div id="mgmtMenu" class="absolute mt-2 w-56 bg-white border rounded shadow hidden">
+              <a href="/admin/users" class="block px-3 py-2 text-sm <%= currentActive === 'users' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-people mr-2"></i>Kelola User
+              </a>
+              <a href="/admin/categories" class="block px-3 py-2 text-sm <%= currentActive === 'categories' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-tags mr-2"></i>Kelola Kategori
+              </a>
+              <a href="/admin/payment-methods" class="block px-3 py-2 text-sm <%= currentActive === 'payment-methods' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-credit-card mr-2"></i>Metode Pembayaran
+              </a>
+            </div>
+          </div>
+
+          <!-- Dropdown sederhana: Hutang & Piutang -->
+          <div class="relative">
+            <button id="debtBtn" class="px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+              <i class="bi bi-journal"></i><span>Hutang & Piutang</span>
+              <i class="bi bi-caret-down-fill text-xs"></i>
+            </button>
+            <div id="debtMenu" class="absolute mt-2 w-64 bg-white border rounded shadow hidden">
+              <a href="/admin/debt-categories" class="block px-3 py-2 text-sm <%= currentActive === 'debt-categories' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-collection mr-2"></i>Kategori Hutang
+              </a>
+              <a href="/admin/credit-categories" class="block px-3 py-2 text-sm <%= currentActive === 'credit-categories' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-collection mr-2"></i>Kategori Piutang
+              </a>
+              <a href="/admin/debt-payments" class="block px-3 py-2 text-sm <%= currentActive === 'debt-payments' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' %>">
+                <i class="bi bi-receipt mr-2"></i>Pembayaran
+              </a>
+            </div>
+          </div>
+
+          <!-- Link tunggal: Gold Cache -->
+          <a href="/admin/gold-cache" class="px-3 py-2 rounded-md text-sm <%=
+            currentActive === 'gold-cache' ? 'bg-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+          %>"><i class="bi bi-cash-coin mr-2"></i>Gold Cache</a>
         </div>
       </div>
 
@@ -40,4 +66,20 @@
       </div>
     </div>
   </div>
+  <script>
+    // Dropdown toggle sederhana (tanpa dependensi)
+    (function(){
+      const mgmtBtn = document.getElementById('mgmtBtn');
+      const mgmtMenu = document.getElementById('mgmtMenu');
+      const debtBtn = document.getElementById('debtBtn');
+      const debtMenu = document.getElementById('debtMenu');
+      function toggle(el){ el.classList.toggle('hidden'); }
+      if(mgmtBtn){ mgmtBtn.addEventListener('click', function(){ toggle(mgmtMenu); debtMenu && debtMenu.classList.add('hidden'); }); }
+      if(debtBtn){ debtBtn.addEventListener('click', function(){ toggle(debtMenu); mgmtMenu && mgmtMenu.classList.add('hidden'); }); }
+      document.addEventListener('click', function(e){
+        if(!e.target.closest('#mgmtBtn') && !e.target.closest('#mgmtMenu')){ mgmtMenu && mgmtMenu.classList.add('hidden'); }
+        if(!e.target.closest('#debtBtn') && !e.target.closest('#debtMenu')){ debtMenu && debtMenu.classList.add('hidden'); }
+      });
+    })();
+  </script>
 </nav>

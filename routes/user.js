@@ -49,7 +49,7 @@ router.use((req, res, next) => {
   next();
 });
 
-const { fetchPrice, fetchPrices } = require('../services/cryptoPriceService');
+const investmentPriceService = require('../services/investmentPriceService');
 
 // GET user dashboard
 router.get('/dashboard', async (req, res) => {
@@ -172,23 +172,23 @@ router.get('/dashboard', async (req, res) => {
       };
     }).filter(cat => cat.total > 0);
 
-    // Compute total crypto value (IDR) using real-time prices
-    let totalCryptoValueIdr = 0;
-    const [cryptoAssets] = await db.query(
-      `SELECT ca.amount, cl.coingecko_id
-       FROM crypto_assets ca
-       JOIN crypto_list cl ON ca.crypto_id = cl.id
-       WHERE ca.user_id = ?`,
+    // Compute total investment value (IDR) for portfolio (crypto + emas)
+    let totalInvestmentValueIdr = 0;
+    const [portfolio] = await db.query(
+      `SELECT p.amount, a.provider_source, a.provider_id
+       FROM investment_portfolio p
+       JOIN investment_assets a ON p.asset_id = a.id
+       WHERE p.user_id = ?`,
       [userId]
     );
-    if (cryptoAssets.length > 0) {
-      const uniqueCoins = [...new Set(cryptoAssets.map(a => a.coingecko_id))];
-      const priceMapFull = await fetchPrices(uniqueCoins);
-      totalCryptoValueIdr = cryptoAssets.reduce((sum, a) => {
-        const p = priceMapFull[a.coingecko_id];
-        const idr = p ? Number(p.idr || 0) : 0;
-        return sum + Number(a.amount) * idr;
-      }, 0);
+    for (const row of portfolio) {
+      try {
+        const price = await investmentPriceService.getPrice(row.provider_source, row.provider_id);
+        const idr = price && price.idr ? Number(price.idr) : 0;
+        totalInvestmentValueIdr += Number(row.amount) * idr;
+      } catch (e) {
+        // fallback ignore
+      }
     }
 
     // Format data for charts
@@ -211,7 +211,7 @@ router.get('/dashboard', async (req, res) => {
       totalBalance: accounts[0]?.totalBalance || 0,
       totalIncome: totals[0]?.totalIncome || 0,
       totalExpense: totals[0]?.totalExpense || 0,
-      totalCryptoValueIdr,
+      totalInvestmentValueIdr,
       chartLabels: JSON.stringify(chartData.labels),
       incomeData: JSON.stringify(chartData.incomeData),
       expenseData: JSON.stringify(chartData.expenseData),

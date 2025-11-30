@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 29, 2025 at 12:21 PM
+-- Generation Time: Nov 30, 2025 at 12:48 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -100,50 +100,6 @@ INSERT INTO `credit_categories` (`id`, `name`) VALUES
 (8, 'Deposit'),
 (9, 'Pembayaran Tertunda'),
 (10, 'Piutang Lainnya');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `crypto_assets`
---
-
-CREATE TABLE `crypto_assets` (
-  `id` int NOT NULL,
-  `user_id` int NOT NULL,
-  `crypto_id` int NOT NULL,
-  `amount` decimal(20,8) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `crypto_list`
---
-
-CREATE TABLE `crypto_list` (
-  `id` int NOT NULL,
-  `symbol` varchar(20) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `coingecko_id` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `crypto_list`
---
-
-INSERT INTO `crypto_list` (`id`, `symbol`, `name`, `coingecko_id`) VALUES
-(1, 'BTC', 'Bitcoin', 'bitcoin'),
-(2, 'ETH', 'Ethereum', 'ethereum'),
-(3, 'BNB', 'Binance Coin', 'binancecoin'),
-(4, 'SOL', 'Solana', 'solana'),
-(5, 'USDT', 'Tether', 'tether'),
-(6, 'USDC', 'USD Coin', 'usd-coin'),
-(7, 'XRP', 'XRP', 'ripple'),
-(8, 'ADA', 'Cardano', 'cardano'),
-(9, 'DOGE', 'Dogecoin', 'dogecoin'),
-(10, 'TRX', 'TRON', 'tron'),
-(11, 'TON', 'Toncoin', 'the-open-network');
 
 -- --------------------------------------------------------
 
@@ -265,6 +221,20 @@ INSERT INTO `expense` (`id`, `user_id`, `category_id`, `account_id`, `amount`, `
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `gold_price_cache`
+--
+
+CREATE TABLE `gold_price_cache` (
+  `id` int NOT NULL,
+  `price_usd` decimal(20,8) DEFAULT NULL,
+  `price_idr` decimal(20,8) DEFAULT NULL,
+  `rate` decimal(20,8) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `income`
 --
 
@@ -292,6 +262,64 @@ INSERT INTO `income` (`id`, `user_id`, `category_id`, `account_id`, `amount`, `d
 (105, 4, 5, 11, '200000.00', 'Hadiah dari Teman', '2025-10-31', '2025-10-31 07:00:00', 5),
 (106, 4, 1, 12, '3000000.00', 'gaji di bulan ini', '2025-11-04', '2025-11-04 02:23:01', 2),
 (107, 4, 2, 11, '3000000.00', 'gaji', '2025-11-07', '2025-11-07 06:34:23', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `investment_assets`
+--
+
+CREATE TABLE `investment_assets` (
+  `id` int NOT NULL,
+  `type` enum('crypto','gold','stock','reksadana','other') NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `symbol` varchar(30) DEFAULT NULL,
+  `provider_id` varchar(100) NOT NULL,
+  `provider_source` enum('coingecko','goldapi','metalsapi','bi','manual') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `investment_assets`
+--
+
+INSERT INTO `investment_assets` (`id`, `type`, `name`, `symbol`, `provider_id`, `provider_source`) VALUES
+(1, 'crypto', 'Bitcoin', 'BTC', 'bitcoin', 'coingecko'),
+(2, 'crypto', 'Ethereum', 'ETH', 'ethereum', 'coingecko'),
+(3, 'gold', 'Emas 24K', 'GOLD', 'XAU', 'goldapi'),
+(4, 'crypto', 'Bitcoin', 'BTC', 'bitcoin', 'coingecko'),
+(5, 'crypto', 'Ethereum', 'ETH', 'ethereum', 'coingecko'),
+(6, 'crypto', 'Binance Coin', 'BNB', 'binancecoin', 'coingecko'),
+(7, 'crypto', 'Solana', 'SOL', 'solana', 'coingecko'),
+(8, 'crypto', 'Tether', 'USDT', 'tether', 'coingecko'),
+(9, 'crypto', 'USD Coin', 'USDC', 'usd-coin', 'coingecko'),
+(10, 'crypto', 'XRP', 'XRP', 'ripple', 'coingecko'),
+(11, 'crypto', 'Cardano', 'ADA', 'cardano', 'coingecko'),
+(12, 'crypto', 'Dogecoin', 'DOGE', 'dogecoin', 'coingecko'),
+(13, 'crypto', 'TRON', 'TRX', 'tron', 'coingecko'),
+(14, 'crypto', 'Toncoin', 'TON', 'the-open-network', 'coingecko');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `investment_portfolio`
+--
+
+CREATE TABLE `investment_portfolio` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `asset_id` int NOT NULL,
+  `amount` decimal(20,8) NOT NULL,
+  `input_unit` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `investment_portfolio`
+--
+
+INSERT INTO `investment_portfolio` (`id`, `user_id`, `asset_id`, `amount`, `input_unit`, `created_at`) VALUES
+(5, 4, 3, '0.03215075', NULL, '2025-11-30 11:47:40'),
+(6, 4, 1, '0.00010000', NULL, '2025-11-30 11:52:37');
 
 -- --------------------------------------------------------
 
@@ -402,20 +430,6 @@ ALTER TABLE `credit_categories`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `crypto_assets`
---
-ALTER TABLE `crypto_assets`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `crypto_id` (`crypto_id`);
-
---
--- Indexes for table `crypto_list`
---
-ALTER TABLE `crypto_list`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `debts`
 --
 ALTER TABLE `debts`
@@ -450,6 +464,12 @@ ALTER TABLE `expense`
   ADD KEY `expense_payment_method_fk` (`payment_method_id`);
 
 --
+-- Indexes for table `gold_price_cache`
+--
+ALTER TABLE `gold_price_cache`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `income`
 --
 ALTER TABLE `income`
@@ -458,6 +478,20 @@ ALTER TABLE `income`
   ADD KEY `category_id` (`category_id`),
   ADD KEY `account_id` (`account_id`),
   ADD KEY `income_payment_method_fk` (`payment_method_id`);
+
+--
+-- Indexes for table `investment_assets`
+--
+ALTER TABLE `investment_assets`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `investment_portfolio`
+--
+ALTER TABLE `investment_portfolio`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `asset_id` (`asset_id`);
 
 --
 -- Indexes for table `payment_methods`
@@ -512,18 +546,6 @@ ALTER TABLE `credit_categories`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `crypto_assets`
---
-ALTER TABLE `crypto_assets`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `crypto_list`
---
-ALTER TABLE `crypto_list`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
 -- AUTO_INCREMENT for table `debts`
 --
 ALTER TABLE `debts`
@@ -548,10 +570,28 @@ ALTER TABLE `expense`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
+-- AUTO_INCREMENT for table `gold_price_cache`
+--
+ALTER TABLE `gold_price_cache`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `income`
 --
 ALTER TABLE `income`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
+
+--
+-- AUTO_INCREMENT for table `investment_assets`
+--
+ALTER TABLE `investment_assets`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT for table `investment_portfolio`
+--
+ALTER TABLE `investment_portfolio`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `payment_methods`
@@ -580,13 +620,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `accounts`
   ADD CONSTRAINT `accounts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-
---
--- Constraints for table `crypto_assets`
---
-ALTER TABLE `crypto_assets`
-  ADD CONSTRAINT `crypto_assets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `crypto_assets_ibfk_2` FOREIGN KEY (`crypto_id`) REFERENCES `crypto_list` (`id`);
 
 --
 -- Constraints for table `debts`
@@ -619,6 +652,13 @@ ALTER TABLE `income`
   ADD CONSTRAINT `income_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `income_ibfk_3` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`),
   ADD CONSTRAINT `income_payment_method_fk` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`id`);
+
+--
+-- Constraints for table `investment_portfolio`
+--
+ALTER TABLE `investment_portfolio`
+  ADD CONSTRAINT `investment_portfolio_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `investment_portfolio_ibfk_2` FOREIGN KEY (`asset_id`) REFERENCES `investment_assets` (`id`);
 
 --
 -- Constraints for table `recurring_transactions`
