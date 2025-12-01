@@ -1,0 +1,880 @@
+@media screen and (max-width: 768px) {
+  /* Baris 1: Filter dan Reset sejajar di mobile */
+  .action-bar-row-1 {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    width: 100%;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .action-bar-row-1 > * {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+  
+  /* Baris 2: Export Excel dan PDF sejajar di mobile */
+  .action-bar-row-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    width: 100%;
+  }
+  
+  .action-bar-row-2 > * {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+}
+@media screen and (max-width: 768px) {
+  /* Tombol pencarian kecil dan sejajar input */
+  .search-bar-mobile {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+  .search-bar-mobile .search-input-wrap {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+  .search-bar-mobile .search-btn {
+    padding: 0.5rem 0.7rem !important;
+    font-size: 1.1rem !important;
+    min-width: 40px;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0.5rem !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+/* =============================
+   MOBILE SIMPLE UI (max-width: 768px)
+   ============================= */
+@media screen and (max-width: 768px) {
+  /* Card & box: lebih rapat */
+  .bg-white.rounded-lg.shadow-sm.border,
+  .p-6 {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Tombol: lebih kecil dan full width */
+  .px-4.py-2\.5,
+  .px-4.py-2,
+  .px-4.py-2.5,
+  .px-4.py-2,
+  .inline-flex.items-center.gap-2.px-4.py-2\.5,
+  .inline-flex.items-center.gap-2.px-4.py-2 {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.95rem !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Tombol export: full width, margin rapat */
+  a.bg-green-600,
+  a.bg-red-600 {
+    margin-bottom: 0.5rem !important;
+    width: 100% !important;
+    font-size: 1rem !important;
+    padding: 0.7rem 0 !important;
+  }
+
+  /* Tombol filter/reset: full width, margin rapat */
+  .flex.justify-end.items-center.gap-2 > * {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Input: lebih kecil dan full width */
+  input[type="text"],
+  select,
+  .w-full.pl-10.pr-3.py-2.5 {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1rem !important;
+    width: 100% !important;
+  }
+
+  /* Grid: hilangkan gap besar */
+  .grid.grid-cols-1.md\:grid-cols-2.gap-4.mb-4 {
+    gap: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Header: margin bawah kecil */
+  .flex.items-center.justify-between.mb-8 {
+    margin-bottom: 1rem !important;
+  }
+
+  /* Hapus shadow card di mobile */
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+}
+/**
+ * ============================================
+ * RESPONSIVE.CSS - Financial App
+ * ============================================
+ * 
+ * File ini HANYA untuk membuat layout responsif.
+ * TIDAK MENGUBAH style, warna, font, atau padding yang sudah ada.
+ * 
+ * Yang dilakukan:
+ * - Menyesuaikan layout sidebar/navbar di mobile
+ * - Membuat tabel scroll horizontal
+ * - Menyesuaikan grid/card menjadi 1 kolom di mobile
+ * - Membuat form full width di mobile
+ * - Override width/flex hanya saat layar kecil
+ * 
+ * Breakpoints:
+ * - max-width: 992px  (Tablet)
+ * - max-width: 768px  (Mobile Landscape)
+ * - max-width: 576px  (Mobile Portrait)
+ * 
+ * ============================================
+ */
+
+
+/* ============================================
+   TABLET - max-width: 992px
+   ============================================ */
+@media screen and (max-width: 992px) {
+  
+  /* Sidebar: Reduce width pada tablet */
+  .sidebar-template {
+    width: 240px !important;
+  }
+  
+  /* Main content: Adjust margin untuk sidebar lebih kecil */
+  main.md\:ml-64 {
+    margin-left: 240px !important;
+  }
+  
+  /* Grid/Card: 2 kolom pada tablet */
+  .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .grid.grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  /* Container: Reduce padding */
+  .container,
+  .max-w-7xl {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* ============================================
+   DESKTOP - min-width: 769px
+   Pastikan sidebar normal di desktop
+   ============================================ */
+@media screen and (min-width: 769px) {
+  .sidebar-template {
+    position: fixed !important;
+    left: 0 !important;
+    width: 256px !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  main.flex-1,
+  main.md\:ml-64 {
+    margin-left: 256px !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Sembunyikan tombol pencarian di desktop (sudah ada icon di input) */
+  .search-btn {
+    display: none !important;
+  }
+}
+
+
+/* ============================================
+   MOBILE LANDSCAPE - max-width: 768px
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Sidebar: Hide/collapse pada mobile */
+  .sidebar-template {
+    position: fixed !important;
+    left: -280px !important; /* Hide off-screen */
+    width: 280px !important;
+    transition: left 0.3s ease !important;
+    z-index: 999 !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
+  }
+  
+  /* Sidebar active state (optional - untuk toggle) */
+  .sidebar-template.active {
+    left: 0 !important;
+    transform: translateX(0) !important;
+  }
+  
+  /* Pastikan sidebar visible saat active */
+  aside.sidebar-template.active {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Main content: Full width tanpa margin sidebar */
+  main.md\:ml-64,
+  main.flex-1 {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* Navbar mobile toggle button (jika ada) */
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+  
+  /* Grid/Card: 1 kolom di mobile landscape */
+  .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3,
+  .grid.grid-cols-1.sm\:grid-cols-2,
+  .grid.grid-cols-1.md\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  /* Flex items: Stack vertikal */
+  .flex.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+  
+  /* Header dengan tombol: Buat full width */
+  .flex.items-center.justify-between > * {
+    width: 100%;
+  }
+  
+  .flex.items-center.justify-between a,
+  .flex.items-center.justify-between button {
+    display: block;
+    text-align: center;
+  }
+  
+  /* Table: Scroll horizontal */
+  table,
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 600px; /* Prevent table collapse */
+  }
+  
+  /* Table wrapper */
+  .min-w-full {
+    min-width: 600px !important;
+  }
+  
+  /* Card padding: Reduce di mobile */
+  .bg-white.rounded-lg,
+  .bg-white.rounded-xl {
+    padding: 1rem !important;
+  }
+  
+  /* Form: Full width di mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100% !important;
+  }
+  
+  /* Modal: Full screen di mobile */
+  .fixed.inset-0 > div {
+    max-width: 95% !important;
+    margin: 0.5rem !important;
+  }
+  
+  /* Text heading: Smaller di mobile */
+  h1.text-3xl {
+    font-size: 1.75rem !important; /* ~28px */
+  }
+  
+  h2.text-2xl {
+    font-size: 1.5rem !important; /* ~24px */
+  }
+  
+  /* Button group: Stack vertical */
+  .flex.gap-2 > form,
+  .flex.gap-2 > a,
+  .flex.gap-2 > button {
+    flex: 1 1 100% !important;
+  }
+  
+  /* Stats card: Stack info vertikal */
+  .flex.items-center.justify-between.mb-4 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  
+  /* Admin navbar dropdown: Full width */
+  .relative .absolute {
+    position: relative !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+}
+
+
+/* ============================================
+   MOBILE PORTRAIT - max-width: 576px
+   ============================================ */
+@media screen and (max-width: 576px) {
+  
+  /* Container: Extra small padding */
+  .container,
+  .max-w-7xl,
+  .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  main .p-6,
+  main .px-6,
+  main .py-6 {
+    padding: 1rem !important;
+  }
+  
+  /* Card: Minimal padding */
+  .bg-white.rounded-lg,
+  .bg-white.rounded-xl,
+  .bg-gradient-to-br {
+    padding: 0.75rem !important;
+  }
+  
+  /* Text heading: Even smaller */
+  h1.text-3xl {
+    font-size: 1.5rem !important; /* ~24px */
+  }
+  
+  h2.text-2xl,
+  .text-2xl {
+    font-size: 1.25rem !important; /* ~20px */
+  }
+  
+  .text-xl {
+    font-size: 1.125rem !important; /* ~18px */
+  }
+  
+  /* Button: Full width di mobile portrait */
+  .inline-flex.items-center.gap-2,
+  .px-6.py-3,
+  .px-4.py-2,
+  a.rounded-lg,
+  button.rounded-lg {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Flex gap: Reduce spacing */
+  .flex.gap-6 {
+    gap: 1rem !important;
+  }
+  
+  .flex.gap-5 {
+    gap: 0.75rem !important;
+  }
+  
+  .flex.gap-4 {
+    gap: 0.5rem !important;
+  }
+  
+  /* Grid gap: Reduce spacing */
+  .grid.gap-6 {
+    gap: 1rem !important;
+  }
+  
+  .grid.gap-5 {
+    gap: 0.75rem !important;
+  }
+  
+  /* Stats/Summary cards: Smaller icon */
+  .w-10.h-10 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+  
+  .w-10.h-10 svg,
+  .w-10.h-10 i {
+    font-size: 1rem !important;
+  }
+  
+  /* Large value display: Smaller */
+  .text-4xl {
+    font-size: 1.75rem !important; /* ~28px */
+  }
+  
+  /* Table: Even more compact */
+  table th,
+  table td {
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Form label: Smaller */
+  label {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Input/Select: Smaller padding */
+  input,
+  select,
+  textarea {
+    padding: 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Modal: Almost full screen */
+  .fixed.inset-0 > div {
+    max-width: 100% !important;
+    margin: 0.25rem !important;
+    max-height: 95vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Sidebar logo section: Smaller */
+  .sidebar-template .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  .sidebar-template .w-9 {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+  
+  .sidebar-template h6 {
+    font-size: 1rem !important;
+  }
+  
+  /* Action buttons in cards: Stack vertical */
+  .flex.gap-2.mt-4,
+  .flex.gap-2 {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  
+  .flex.gap-2 > *,
+  .flex.gap-2 > form {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+  
+  /* Chart containers: Full width */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+
+/* ============================================
+   UTILITY CLASSES UNTUK RESPONSIF
+   ============================================ */
+
+/* Automatic table wrapper - akan wrap semua table dengan scroll */
+@media screen and (max-width: 768px) {
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Pastikan table tidak terlalu kecil */
+  table.min-w-full {
+    min-width: 600px;
+  }
+  
+  /* Table wrapper parent */
+  .bg-white.rounded-lg > table,
+  .shadow > table,
+  .border > table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Hide di mobile */
+@media screen and (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show hanya di mobile */
+.show-mobile {
+  display: none !important;
+}
+
+@media screen and (max-width: 768px) {
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* Scroll wrapper untuk table */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (max-width: 768px) {
+  .table-scroll-wrapper {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+  }
+}
+
+
+/* ============================================
+   NAVBAR ADMIN RESPONSIF
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Admin navbar: Stack menu items */
+  nav.flex.items-center {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  
+  /* Admin navbar links: Full width */
+  nav a,
+  nav button,
+  nav .relative {
+    width: 100% !important;
+    text-align: left !important;
+  }
+  
+  /* Dropdown menu: Full width */
+  nav .relative .absolute {
+    position: relative !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    margin-top: 0.5rem !important;
+  }
+}
+
+
+/* ============================================
+   INVESTMENT PAGE RESPONSIF
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Investment cards: Full width */
+  .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3 > div {
+    width: 100% !important;
+  }
+  
+  /* Investment stats: Stack */
+  .flex.items-center.justify-between.mb-4 {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+}
+
+
+/* ============================================
+   TRANSACTION PAGE RESPONSIF
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Transaction filters: Stack vertical */
+  .flex.gap-4,
+  .flex.gap-3 {
+    flex-direction: column !important;
+    width: 100%;
+  }
+  
+  .flex.gap-4 > *,
+  .flex.gap-3 > * {
+    width: 100% !important;
+  }
+}
+
+
+/* ============================================
+   DASHBOARD PAGE RESPONSIF
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Dashboard summary cards: 1 column */
+  .grid.grid-cols-1.md\:grid-cols-2.gap-6 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Chart containers: Stack vertical */
+  .grid.grid-cols-1.lg\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ============================================
+   FORM RESPONSIF
+   ============================================ */
+@media screen and (max-width: 768px) {
+  
+  /* Form grid: Single column */
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Form buttons: Full width */
+  form button[type="submit"],
+  form a {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+  }
+  
+  /* Form button group: Stack */
+  .flex.justify-end.gap-2,
+  .flex.gap-2.mt-4 {
+    flex-direction: column-reverse !important;
+  }
+}
+
+
+/* ============================================
+   PREVENT HORIZONTAL SCROLL
+   ============================================ */
+@media screen and (max-width: 768px) {
+  body {
+    overflow-x: hidden !important;
+  }
+  
+  * {
+    max-width: 100vw;
+  }
+  
+  /* Prevent overflow dari container besar */
+  .min-h-screen,
+  main {
+    overflow-x: hidden !important;
+  }
+}
+
+
+/* ============================================
+   FIX TAILWIND RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Override md: prefix classes pada mobile */
+@media screen and (max-width: 768px) {
+  .md\:ml-64 {
+    margin-left: 0 !important;
+  }
+  
+  .md\:flex {
+    display: flex !important;
+  }
+  
+  .md\:block {
+    display: block !important;
+  }
+}
+
+/* Override lg: prefix classes pada tablet */
+@media screen and (max-width: 992px) {
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* ============================================
+   MOBILE MENU TOGGLE BUTTON (Optional)
+   ============================================
+   Tambahkan tombol hamburger untuk toggle sidebar
+   Gunakan JavaScript untuk toggle class 'active'
+   ============================================ */
+
+.mobile-menu-toggle {
+  display: none !important; /* Hidden by default (desktop) */
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  background: white;
+  border: 2px solid #4f46e5;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-toggle:hover {
+  background: #f9fafb;
+}
+
+.mobile-menu-toggle:active {
+  background: #f3f4f6;
+  transform: scale(0.95);
+}
+
+@media screen and (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex !important; /* Show only on mobile */
+  }
+  
+  /* Add padding to main content for hamburger button */
+  main.flex-1 {
+    padding-top: 4rem !important;
+  }
+  
+  /* Adjust page header untuk tidak tertutup hamburger */
+  main .px-4,
+  main .p-6 {
+    padding-top: 1rem !important;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none !important; /* Force hide on desktop */
+  }
+}
+
+/* Overlay ketika sidebar open di mobile */
+.sidebar-overlay {
+  display: none !important; /* Hidden by default */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar-overlay {
+    display: none !important;
+  }
+  
+  .sidebar-overlay.active {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .sidebar-overlay {
+    display: none !important; /* Never show on desktop */
+  }
+  
+  .sidebar-overlay.active {
+    display: none !important;
+  }
+}
+
+
+/* ============================================
+   PRINT MEDIA
+   ============================================ */
+@media print {
+  .sidebar-template,
+  .mobile-menu-toggle,
+  nav,
+  button,
+  a[href*="edit"],
+  a[href*="delete"],
+  form[action*="delete"] {
+    display: none !important;
+  }
+  
+  main {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  * {
+    box-shadow: none !important;
+  }
+}
+
+/* Responsive fix: Hide search icon in input on mobile */
+@media screen and (max-width: 768px) {
+  .search-input-icon,
+  .search-input-icon.absolute.inset-y-0.left-0.pl-3.flex.items-center.text-gray-400 {
+    display: none !important;
+  }
+  
+  /* Account cards - lebih responsif di mobile */
+  .bg-gradient-to-br.from-green-50.to-green-100 .w-10.h-10,
+  .bg-gradient-to-br.from-red-50.to-red-100 .w-10.h-10 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+  
+  .bg-gradient-to-br.from-green-50.to-green-100 .w-10.h-10 svg,
+  .bg-gradient-to-br.from-red-50.to-red-100 .w-10.h-10 svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  /* Card icon dan text lebih kecil */
+  .bg-gradient-to-br.from-green-50.to-green-100 .text-2xl,
+  .bg-gradient-to-br.from-red-50.to-red-100 .text-2xl {
+    font-size: 1.125rem !important;
+  }
+  
+  .bg-gradient-to-br.from-green-50.to-green-100 h3,
+  .bg-gradient-to-br.from-red-50.to-red-100 h3 {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Account card saldo text lebih kecil di mobile */
+  .bg-gradient-to-r.from-indigo-50.to-blue-50 .text-2xl {
+    font-size: 1.25rem !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Card padding lebih kecil di mobile */
+  .bg-gradient-to-br.from-green-50.to-green-100,
+  .bg-gradient-to-br.from-red-50.to-red-100 {
+    padding: 1rem !important;
+  }
+  
+  /* Saldo akun card padding */
+  .bg-gradient-to-r.from-indigo-50.to-blue-50 {
+    padding: 0.75rem !important;
+  }
+  
+  /* Icon dan text di bagian bawah card lebih kecil dan sejajar */
+  .flex.items-center.gap-2.text-xs.text-gray-500 {
+    font-size: 0.65rem !important;
+    gap: 0.25rem !important;
+  }
+  
+  .flex.items-center.gap-2.text-xs.text-gray-500 svg {
+    width: 0.65rem !important;
+    height: 0.65rem !important;
+  }
+}

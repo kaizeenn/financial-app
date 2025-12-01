@@ -1,6 +1,16 @@
+<!-- Mobile Menu Toggle Button (Hidden di desktop) -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+  <svg class="w-6 h-6" fill="none" stroke="#4f46e5" viewBox="0 0 24 24" stroke-width="2.5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
+<!-- Sidebar Overlay (untuk close sidebar saat klik luar) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <!-- Sidebar (Tailwind) -->
 <!-- Fixed sidebar for predictable alignment -->
-<aside class="sidebar-template fixed left-0 top-0 w-64 h-screen bg-white border-r overflow-auto z-20">
+<aside class="sidebar-template fixed left-0 top-0 w-64 h-screen bg-white border-r overflow-auto z-20" id="sidebar">
   <div class="p-4 flex items-center gap-3 border-b">
     <img src="/images/template/logo/logo-icon.svg" alt="logo" class="w-9 h-9">
     <div>
@@ -66,3 +76,61 @@
     </a>
   </nav>
 </aside>
+
+<!-- JavaScript untuk toggle sidebar di mobile -->
+<script>
+(function() {
+  const menuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  
+  console.log('Mobile menu script loaded');
+  console.log('menuToggle:', menuToggle);
+  console.log('sidebar:', sidebar);
+  console.log('overlay:', overlay);
+  
+  if (menuToggle && sidebar && overlay) {
+    // Toggle sidebar saat klik button
+    menuToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Menu toggle clicked');
+      
+      const isActive = sidebar.classList.contains('active');
+      console.log('Current active state:', isActive);
+      
+      if (isActive) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        console.log('Closing sidebar');
+      } else {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        console.log('Opening sidebar');
+      }
+    });
+    
+    // Close sidebar saat klik overlay
+    overlay.addEventListener('click', function() {
+      console.log('Overlay clicked - closing sidebar');
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+    
+    // Close sidebar saat klik link (optional)
+    const sidebarLinks = sidebar.querySelectorAll('a');
+    sidebarLinks.forEach(function(link) {
+      link.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+          console.log('Link clicked - closing sidebar');
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+        }
+      });
+    });
+    
+    console.log('Mobile menu initialized successfully');
+  } else {
+    console.error('Mobile menu elements not found!');
+  }
+})();
+</script>
