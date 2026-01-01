@@ -211,6 +211,10 @@
       const formData = new FormData(this);
       const rawAmount = amountInput.value.replace(/\./g, '');
       formData.set('amount', rawAmount);
+      
+      // Convert checkbox value to 0 or 1
+      const activeCheckbox = document.getElementById('active');
+      formData.set('active', activeCheckbox.checked ? 1 : 0);
 
       const url = currentRecurringId ? `/user/recurring/${currentRecurringId}` : '/user/recurring';
       const method = currentRecurringId ? 'PUT' : 'POST';
@@ -261,9 +265,37 @@
   // Edit recurring
   async function editRecurring(id) {
     try {
-      // For now, we'll need to fetch the data via AJAX or store it in the template
-      // Since we don't have a get single endpoint, we'll show a message
-      alert('Fitur edit akan segera tersedia. Gunakan toggle aktif/nonaktif untuk sementara.');
+      const response = await fetch(`/user/recurring/${id}`);
+      const result = await response.json();
+
+      if (result.success) {
+        const data = result.data;
+        currentRecurringId = id;
+        document.getElementById('modalTitle').textContent = 'Edit Transaksi Berulang';
+        document.getElementById('activeStatusDiv').style.display = 'block';
+
+        // Set form values
+        document.querySelector(`input[name="type"][value="${data.type}"]`).checked = true;
+        document.getElementById('account_id').value = data.account_id;
+        document.getElementById('amount').value = new Intl.NumberFormat('id-ID').format(data.amount);
+        document.getElementById('frequency').value = data.frequency;
+        document.getElementById('next_run_date').value = data.next_run_date;
+        document.getElementById('description').value = data.description || '';
+        document.getElementById('active').checked = data.active == 1;
+
+        // Update categories
+        updateCategories(data.type);
+        
+        // Set category after categories are loaded
+        setTimeout(() => {
+          document.getElementById('category_id').value = data.category_id;
+        }, 100);
+
+        addModal.classList.remove('hidden');
+        addModal.classList.add('flex');
+      } else {
+        alert(result.message || 'Gagal mengambil data');
+      }
     } catch (error) {
       console.error('Edit error:', error);
       alert('Terjadi kesalahan saat mengambil data');

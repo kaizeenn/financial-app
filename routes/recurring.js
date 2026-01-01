@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const isAuthenticated = require('../middleware/auth');
+const { triggerRecurringProcessing } = require('../lib/recurringProcessor');
 
 // Middleware untuk set main layout
 router.use((req, res, next) => {
@@ -57,6 +58,29 @@ router.get('/categories/:type', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+});
+
+// Get single recurring transaction
+router.get('/:id', isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.session.user_id;
+
+    const [recurring] = await db.query(
+      `SELECT rt.* FROM recurring_transactions rt
+       WHERE rt.id = ? AND rt.user_id = ?`,
+      [id, user_id]
+    );
+
+    if (recurring.length === 0) {
+      return res.status(403).json({ success: false, message: 'Akses ditolak.' });
+    }
+
+    res.json({ success: true, data: recurring[0] });
+  } catch (error) {
+    console.error('Error fetching recurring transaction:', error);
+    res.status(500).json({ success: false, message: 'Gagal mengambil data transaksi berulang.' });
   }
 });
 
@@ -158,6 +182,19 @@ router.patch('/:id/toggle', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error toggling recurring transaction:', error);
     res.status(500).json({ success: false, message: 'Gagal mengubah status transaksi berulang.' });
+  }
+});
+
+// Manual trigger for processing (testing purposes)
+router.post('/manual-trigger', isAuthenticated, async (req, res) => {
+  try {
+    console.log('Manual trigger of recurring transactions processing...');
+    await triggerRecurringProcessing();
+    req.flash('success', 'Transaksi berulang telah diproses secara manual');
+    res.json({ success: true, message: 'Transaksi berulang berhasil diproses' });
+  } catch (error) {
+    console.error('Error in manual trigger:', error);
+    res.status(500).json({ success: false, message: 'Gagal memproses transaksi berulang.' });
   }
 });
 

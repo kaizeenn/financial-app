@@ -16,6 +16,7 @@ var userRouter = require('./routes/user');
 var debtsRouter = require('./routes/debts');
 var recurringRouter = require('./routes/recurring');
 var isAuthenticated = require('./middleware/auth');
+var { startRecurringCronJob } = require('./lib/recurringProcessor');
 
 var app = express();
 
@@ -55,6 +56,9 @@ app.use('/user', userRouter);
 // Mount other user-related routes
 app.use('/user/debts', debtsRouter);
 app.use('/user/recurring', recurringRouter);
+
+// Start recurring transactions cron job
+startRecurringCronJob();
 
 // Investasi route
 app.use('/invest', isAuthenticated, investmentRouter);
