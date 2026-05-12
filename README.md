@@ -89,7 +89,11 @@ mysql -u root -p catatan < sql/catatan.sql
 ```
 
 ### 4. Konfigurasi Environment
-Buat file `.env` di root project:
+```bash
+cp .env.example .env
+```
+
+Copy `.env.example` menjadi `.env`, lalu isi nilainya:
 ```env
 # Database
 DB_HOST=localhost
@@ -122,6 +126,9 @@ npm run dev
 Aplikasi berjalan di: **http://localhost:3000**
 
 ## 🔑 Default Login
+
+> Catatan: akun berikut hanya untuk development/testing lokal.
+
 
 **Admin:**
 - Username: `atmin`
